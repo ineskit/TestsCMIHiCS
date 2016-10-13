@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "library(subcon)\n# Rcpp::List cmiResult = CMISearch()\n# CMISearch(NumericMatrix indexMap, double alpha, int numRuns, int topkSearch, int topkOutput)\n# result[\"subspaces\"] = outputSpaces;\n\n# -------------------------------------------------------------\n# Test #1 - Eigene Daten\n# -------------------------------------------------------------\n\nmatr <- matrix(c(3,4,9,11,5,6,5,5,1,2,1,2,5,5,88,5), 4, 4)\nnumCluster <- 2\ntopkSearch <- 3\ntopkOutput <- 3\n\nstartCmi <- Sys.time()\nCMIResult = CMISearch(matr, numCluster, topkSearch, topkOutput)\nendCmi <- Sys.time()\nprint(CMIResult$subspaces)\n\n# Duration CMI\ndifftime(endCmi, startCmi, unit=\"sec\")\n\n\n# Subspaces - Length\nsubspacesCMI <- CMIResult$subspaces\ntable(sapply(subspacesCMI, length))\n\n# -------------------------------------------------------------\n# Test #2 - ion.csv\n# -------------------------------------------------------------\n\n\n# read data\nlibrary(data.table)\ndataset_labeledION <- as.data.table(read.csv(\"D:/Uni/SS16/Hiwi/Paper/CMI_Daten/ion.csv\", header=FALSE, sep = \";\"))\nlabels <- ifelse(as.numeric(levels(dataset_labeledION$class))[dataset_labeledION$class] > 0 , 1, 0)\nlabels <- dataset_labeledION[[ncol(dataset_labeledION)]]\n#labels <- dataset_labeledION$V33\ndt <- dataset_labeledION[, -ncol(dataset_labeledION), with=F]\n\n\nm <- data.matrix(dt)\n\n####### set parameter #######\n# todo: mit welchen Parametern wurde CMI im Paper getestet? numCl, topkSearch, ...?\n\nnumClusterION <- 10\ntopkSearchION <- 3\ntopkOutputION <- 5\n\n####### CMI #######\nstartCmiION <- Sys.time()\nCMIResultION = CMISearch(m, numClusterION, topkSearchION, topkOutputION)\nendCmiION <- Sys.time()\n\ndifftime(endCmiION, startCmiION, unit=\"sec\")\n\n\n####### Subspaces - Length #######\nsubspacesCMIION <- CMIResultION$subspaces\ntable(sapply(subspacesCMIION, length))\n\nprint(subspacesCMIION)\nprint(CMIResultION$contrast)\n\n\n####### AUC under ROC curve #######\n\n# Calculate LOF score for subspaces\n\n\nlofactors <- lapply(CMIResultION$subspaces, function(x) {\n  lof <- LOF(dt[,unlist(x), with=F], k=10)\n  lof[is.infinite(lof) | is.nan(lof)] <- 1\n  lof\n})\n\n\n\n# AUC for combined scoring\ncombinedScoreAUC(combinationFun = sumCombination, scores = lofactors, label = labels)\n\n\n####### Plot #######\n\nprint(subspacesCMIION)\nprint(CMIResultION$contrast)\n# --> 11,13 hat den höchsten Kontrast: 17.96153\nplot(dt$V11, xlim=c(0,34), ylim=c(0,120))\nplot(dt$V13)\nplot(V11~V13, data=dt)\n\nxlims <- c(0,length(CMIResultION$contrast))\nylims <- c(min(CMIResultION$contrast),max(CMIResultION$contrast))\nplot(CMIResultION$subspaces, CMIResultION$contrast, xlim=xlims, ylim = ylims, main=\"Kontraste der Subspaces\")\n#legend()\n# todo: wie bekomme ich die Subspaces (Liste von n Elementen) als x-Achsen-Koordinaten ausgegeben?\nsubspX <- sapply(CMIResultION$subspaces, function(x) paste0(\"[\",paste(x, collapse = \",\"),\"]\"))\n\ndfResult = data.frame(subspX, CMIResultION$contrast)\nlibrary(\"ggplot2\")\nggplot(dfResult, aes(x=subspX, y=CMIResultION$contrast)) +geom_point()\n",
+    "created" : 1476367169946.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3822534529",
+    "id" : "9318D665",
+    "lastKnownWriteTime" : 1476367510,
+    "last_content_update" : 1476367510409,
+    "path" : "D:/Uni/SS16/Hiwi/github/R-subcon/tests/CMI_Tests.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

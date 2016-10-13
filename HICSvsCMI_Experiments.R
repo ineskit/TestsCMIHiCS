@@ -129,6 +129,7 @@ subspaceSearch <- function(data, alpha, numRuns, algorithm, topkSearch, topkOutp
          CMI = {
            CMIResult = CMISearch(data = numMatrix, numCluster = 10, topkSearch = topkSearch, topkOutput = topkOutput)
            outputSpaces <- CMIResult$subspaces
+           contrastCMI  <- CMIResult$contrast
          }
   )
   Log(paste0(algorithm, ": found ", length(outputSpaces), " subspaces."))
@@ -186,8 +187,24 @@ runExperiments <- function(inputPath,
                               result <- applyLOF(outputSpaces = outputSpaces, data=dt, label=label, maxMinPts = maxMinPts, input = experiment$input, algorithm = experiment$algorithm)
                               timer_end_LOF <- proc.time()
 
+                              # for (i in 1:5) {
+                              #   subspX <- sapply(outputSpaces[i], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              #   header<-paste0("Top_",i)
+                              #   top5SS$header <- subspX
+                              #   #top5SS <- data.table(header = subspX)
+                              # }
+                              subsp1 <- sapply(outputSpaces[1], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp2 <- sapply(outputSpaces[2], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp3 <- sapply(outputSpaces[3], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp4 <- sapply(outputSpaces[4], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp5 <- sapply(outputSpaces[5], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              top5SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5)
+                              
                               data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result))
+                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top5SS))
+                            
+                              # top 5 subspaces:
+                              #top5SS<-data.table(cbind(subspaces = outputSpaces[1:5]), contrast = contrastCMI)
                             }
 
   combinedResult <- data.table(Reduce(rbind, parallelResult))
@@ -196,6 +213,9 @@ runExperiments <- function(inputPath,
   # store result
 
   save(combinedResult, file=paste0(outputFolder,"/",outputFile))
+  
+  #outputFileEnh <- paste0(outputFile, "_enh")
+  #save(top5SS, file=paste0(outputFolder,"/",outputFileEnh))
   # cleanup
   if(numCores > 1){
     stopCluster(cluster)
