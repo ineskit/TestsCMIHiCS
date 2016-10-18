@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#include <Rcpp.h>\n#include <queue>\n#include <algorithm>\n#include <iterator>\n#include \"searchBeam.h\"\nusing namespace Rcpp;\n\nbool operator<(const Subspace& a, const Subspace& b) {\n  return a.contrast < b.contrast;\n}\n\nbool operator>(const Subspace& a, const Subspace& b) {\n  return a.contrast > b.contrast;\n}\n\nstd::ostream& operator<<(std::ostream& os, const Subspace& subspace) {\n  os << \"subspace: [\";\n  for (const auto& i: subspace.space){\n    os << i << \" \";\n  }\n  os << \"] contrast: \" << subspace.contrast << std::endl;\n  return os;\n}\n\nbool AscendingComp::operator()(const Subspace& a, const Subspace& b) {\n    return a > b;\n  };\n\nstd::vector< std::vector<int> > subspaceVector(std::priority_queue<Subspace, std::vector<Subspace>, AscendingComp> pq){\n  std::vector< std::vector<int> > subspaceVector;\n  while (!pq.empty()){\n    subspaceVector.push_back(pq.top().space);\n    pq.pop();\n  }\n  return subspaceVector;\n}\n\nstd::vector<double> contrastVector(std::priority_queue<Subspace, std::vector<Subspace>, AscendingComp> pq){\n  std::vector<double> contrastVector;\n  while (!pq.empty()){\n    contrastVector.push_back(pq.top().contrast);\n    pq.pop();\n  }\n  return contrastVector;\n}\n\nstd::priority_queue<Subspace, std::vector<Subspace>, AscendingComp>\n  pushFixedSize(std::priority_queue<Subspace, std::vector<Subspace>, AscendingComp>& pq,\n                Subspace s,\n                unsigned int k){\n    if(pq.size() < k){\n      pq.push(s);\n    }else{\n      if(pq.top() < s){\n        pq.pop();\n        pq.push(s);\n      }\n    }\n    return pq;\n  }\n",
+    "created" : 1476799369539.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2896313169",
+    "id" : "E3127E07",
+    "lastKnownWriteTime" : 1466768190,
+    "last_content_update" : 1466768190,
+    "path" : "D:/Uni/SS16/Hiwi/github/R-subcon/src/searchBeam.cpp",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "cpp"
+}

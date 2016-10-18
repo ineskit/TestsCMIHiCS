@@ -106,13 +106,16 @@ subspaceSearch <- function(data, alpha, numRuns, algorithm, topkSearch, topkOutp
     subspaces
   }
 
+  resList <- list()
   switch(algorithm,
          GMD = {
            outputSpaces <- GMD(indexMap = indexMatrix, alpha, numRuns)
          },
          HiCS = {
            capture.output(hicsSearchResult <- HiCSSearch(indexMap = indexMatrix, alpha, numRuns, topkSearch = topkSearch, topkOutput = topkOutput), file = NULL)
-           outputSpaces <- hicsSearchResult$subspaces
+
+           resList$outputSpaces <- hicsSearchResult$subspaces
+           resList$contrast     <- hicsSearchResult$contrast
          },
          FS = {
            outputSpaces <- list(1:ncol(sampledata))
@@ -121,6 +124,7 @@ subspaceSearch <- function(data, alpha, numRuns, algorithm, topkSearch, topkOutp
            capture.output(hicsSearchResult <- HiCSSearch(indexMap = indexMatrix, alpha, numRuns, topkSearch = topkSearch, topkOutput = topkOutput), file = NULL)
            outputSpaces <- hicsSearchResult$subspaces
            outputSpaces <- addTrivialSpaces(outputSpaces, ncol(sampledata))
+           contrast     <- hicsSearchResult$contrast
          },
          GMDSO = {
            outputSpaces <- GMD(indexMap = indexMatrix, alpha, numRuns)
@@ -128,12 +132,12 @@ subspaceSearch <- function(data, alpha, numRuns, algorithm, topkSearch, topkOutp
          },
          CMI = {
            CMIResult = CMISearch(data = numMatrix, numCluster = 10, topkSearch = topkSearch, topkOutput = topkOutput)
-           outputSpaces <- CMIResult$subspaces
-           contrastCMI  <- CMIResult$contrast
+           resList$outputSpaces <- CMIResult$subspaces
+           resList$contrast     <- CMIResult$contrast
          }
   )
-  Log(paste0(algorithm, ": found ", length(outputSpaces), " subspaces."))
-  outputSpaces
+  Log(paste0(algorithm, ": found ", length(resList$outputSpaces), " subspaces."))
+  return (resList)
 }
 
 runExperiments <- function(inputPath,
@@ -150,9 +154,9 @@ runExperiments <- function(inputPath,
   # setup
   Log("starting experiments")
   inputs <- list.files(path=inputPath, recursive = T)
-  # algorithms <- c("GMD", "HiCS", "FS")
-  algorithms <- c("HiCS", "CMI")
+   algorithms <- c("HiCS", "CMI")
 
+  
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
 
   resultSet <- data.table()
@@ -180,11 +184,11 @@ runExperiments <- function(inputPath,
                               dt <- dt[,-c("class"), with=F]
 
                               timer_start <- proc.time()
-                              outputSpaces <- subspaceSearch(data = dt, alpha, numRuns, algorithm = experiment$algorithm, topkSearch, topkOutput)
+                              rL <- subspaceSearch(data = dt, alpha, numRuns, algorithm = experiment$algorithm, topkSearch, topkOutput)
                               timer_end <- proc.time()
 
                               timer_start_LOF <- proc.time()
-                              result <- applyLOF(outputSpaces = outputSpaces, data=dt, label=label, maxMinPts = maxMinPts, input = experiment$input, algorithm = experiment$algorithm)
+                              result <- applyLOF(outputSpaces = rL$outputSpaces, data=dt, label=label, maxMinPts = maxMinPts, input = experiment$input, algorithm = experiment$algorithm)
                               timer_end_LOF <- proc.time()
 
                               # for (i in 1:5) {
@@ -193,15 +197,15 @@ runExperiments <- function(inputPath,
                               #   top5SS$header <- subspX
                               #   #top5SS <- data.table(header = subspX)
                               # }
-                              subsp1 <- sapply(outputSpaces[1], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp2 <- sapply(outputSpaces[2], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp3 <- sapply(outputSpaces[3], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp4 <- sapply(outputSpaces[4], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp5 <- sapply(outputSpaces[5], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp1 <- sapply(rL$outputSpaces[1], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp2 <- sapply(rL$outputSpaces[2], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp3 <- sapply(rL$outputSpaces[3], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp4 <- sapply(rL$outputSpaces[4], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp5 <- sapply(rL$outputSpaces[5], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               top5SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5)
                               
                               data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top5SS))
+                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top5SS, Highestcontrast =rL$contrast[1]))
                             
                               # top 5 subspaces:
                               #top5SS<-data.table(cbind(subspaces = outputSpaces[1:5]), contrast = contrastCMI)
@@ -223,5 +227,5 @@ runExperiments <- function(inputPath,
   combinedResult
 }
 
- # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
+  # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 5, topkOutput = 100)
 
