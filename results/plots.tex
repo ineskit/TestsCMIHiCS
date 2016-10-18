@@ -1,5 +1,21 @@
- 
-1. AUC 
+\documentclass[12pt,a4paper]{scrartcl}
+
+
+\usepackage[utf8]{inputenc}
+% \usepackage[latin1]{inputenc} %  Alternativ unter Windows
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+
+
+\usepackage[pdftex]{graphicx}
+\usepackage{latexsym}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{url}
+
+\begin{document}
+
+\begin{table}
+\begin{center}
  \begin{tabular}{lcr}
  \hline
   Dataset & CMI & HiCS \\
@@ -11,12 +27,16 @@
   Segment & 0.94 & 0.96 \\
   Lympho & 0.94 & 0.95 \\
   \hline
+
  \end{tabular}
- 
- Quelle: Feld AUC_removedRedundant_sum
- 
- 
-  \begin{tabular}{lcr}
+  \caption {AUC on real world data, AUCremovedRedundantSum}
+  \end{center}
+\end{table} 
+
+
+\begin{table}
+\begin{center}
+ \begin{tabular}{lcr}
  \hline
   Dataset & CMI & HiCS \\
   \hline
@@ -27,13 +47,15 @@
   Segment & 0.905 & 0.825 \\
   Lympho & 0.930 & 0.869 \\
   \hline
+
  \end{tabular}
+  \caption {AUC on real world data, AUCsum}
+  \end{center}
+\end{table} 
  
- Quelle: Feld AUC_sum
- 
- 
- 
-2. Runtime in sec. (Summe der Felder "durationSS" und "durationLOF")
+\begin{table}
+
+\begin{center} 
   \begin{tabular}{lcr}
  \hline
   Dataset & CMI & HiCS \\
@@ -46,10 +68,13 @@
   Lympho & 26.6 & 18.76 \\
   \hline
  \end{tabular}
- 
- 
-   
- Durchschn. Größe der 5 größten SS
+  \caption {Runtime in sec. on real world data}
+  \end{center}
+\end{table} 
+  
+  
+\begin{table}
+\begin{center} 
   \begin{tabular}{lcr}
  \hline
   Dataset & CMI & HiCS \\
@@ -60,3 +85,9 @@
   Lympho & 6.6 & 2.6  \\
   \hline
  \end{tabular} 
+  \caption { Size of the 5 high-contrast-subspaces}
+  \end{center}
+\end{table} 
+ 
+
+ \end{document}
