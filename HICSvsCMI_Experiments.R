@@ -227,5 +227,5 @@ runExperiments <- function(inputPath,
   combinedResult
 }
 
-  # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 5, topkOutput = 100)
+  # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
 
