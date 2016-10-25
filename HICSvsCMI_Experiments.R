@@ -154,7 +154,7 @@ runExperiments <- function(inputPath,
   # setup
   Log("starting experiments")
   inputs <- list.files(path=inputPath, recursive = T)
-   algorithms <- c("HiCS", "CMI")
+   algorithms <- c("HiCS", "CMI", "GMD")
 
   
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
@@ -202,10 +202,26 @@ runExperiments <- function(inputPath,
                               subsp3 <- sapply(rL$outputSpaces[3], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               subsp4 <- sapply(rL$outputSpaces[4], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               subsp5 <- sapply(rL$outputSpaces[5], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              top5SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5)
+                              subsp6 <- sapply(rL$outputSpaces[6], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp7 <- sapply(rL$outputSpaces[7], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp8 <- sapply(rL$outputSpaces[8], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp9 <- sapply(rL$outputSpaces[9], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp10 <- sapply(rL$outputSpaces[10], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp11 <- sapply(rL$outputSpaces[11], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp12 <- sapply(rL$outputSpaces[12], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp13 <- sapply(rL$outputSpaces[13], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp14 <- sapply(rL$outputSpaces[14], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp15 <- sapply(rL$outputSpaces[15], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp16 <- sapply(rL$outputSpaces[16], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp17 <- sapply(rL$outputSpaces[17], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp18 <- sapply(rL$outputSpaces[18], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp19 <- sapply(rL$outputSpaces[19], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              subsp20 <- sapply(rL$outputSpaces[20], function(x) paste0("[",paste(x, collapse = ","),"]"))
+                              top20SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5, subsp6, subsp7, subsp8, subsp9, subsp10,
+                                                   subsp11, subsp12, subsp13, subsp14, subsp15, subsp16, subsp17, subsp18, subsp19, subs20)
                               
                               data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top5SS, Highestcontrast =rL$contrast[1]))
+                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast =rL$contrast[1]))
                             
                               # top 5 subspaces:
                               #top5SS<-data.table(cbind(subspaces = outputSpaces[1:5]), contrast = contrastCMI)

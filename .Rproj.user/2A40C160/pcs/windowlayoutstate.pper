@@ -7,8 +7,8 @@
     },
     "right" : {
         "panelheight" : 789,
-        "splitterpos" : 380,
-        "topwindowstate" : "NORMAL",
+        "splitterpos" : 635,
+        "topwindowstate" : "MINIMIZE",
         "windowheight" : 827
     }
 }

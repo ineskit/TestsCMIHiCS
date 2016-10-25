@@ -1,0 +1,107 @@
+---
+title: "Experiments CMI & HiCS"
+author: "Ines Machinek"
+date: "25 Oktober 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##  Comparing CMI and HiCS Subspace Search using real-world datasets
+
+### Overview
+This document contains the results of a comparison of the two algorithms CMI & HiCS.
+For further documentation, see:
+<ul>
+  <li>
+    Nguyen, Hoang, Vreeken, Jilles, Müller, Emmanuel, Keller, Fabian and Klemens Bohm. 2013.
+    "CMI: An Information-Theoretic Contrast Measure for Enhancing Subspace Cluster and Outlier Detection"
+  </li>
+  <li>
+    Keller, Fabian, Emmanuel Müller, and Klemens Bohm. 2012. "HiCS: High Contrast Subspaces for Density-Based Outlier Ranking." In 2012 IEEE 28th   
+    International Conference on Data Engineering, 1037-48. IEEE.
+  </li>
+</ul>
+Both algorithms were implemented in inline c++ in R, using the Rcpp-package.
+Experiments ran on Intel core i7-4600U CPU and 8 GB RAM.
+
+
+### Datasets
+The datasets for testing were:
+
+```{r echo = FALSE, results = 'asis'}
+
+Datasets <- c("Thyroid", "Glass", "Ion", "Pendigits", "Segment", "Lympho")
+Rows <- c(3772, 214, 351, 6737, 2013, 148)
+Dimensions <- c(6, 7, 32, 16, 19, 18)
+
+df <-data.frame(Datasets,Rows,Dimensions)
+library(knitr)
+
+kable(df, caption = "Datasets - Overview")
+```
+Datasets can be downloaded here: 
+[http://www.ipd.uni-karlsruhe.de/~muellere/HiCS/]
+
+### Run Experiments
+1. Download the datasets into the *datasets* folder
+2. Source the *HICSvsCMI_Experiments.R* script
+3. Start experiment by calling **runExperiments**-function
+```{r eval=FALSE}
+  finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
+```
+Automatically a file *experimentResult.RData* will be written to the *results* folder.
+Results can be loaded by
+```{r eval=FALSE}
+load("results/experimentResult.RData")
+```
+
+### Results
+The following results were observed after having run the algorithms with the parameters:
+* maxMinPts = 100
+* numCores=1
+* topkSearch = 500
+* topkOutput = 100
+
+
+```{r, echo=FALSE}
+Dataset = c("Thyroid","Thyroid","Glass","Glass","Ion", "Ion", "Pendigits","Pendigits","Segment","Segment", "Lympho","Lympho") 
+Algorithm = c("CMI", "HiCS","CMI", "HiCS","CMI", "HiCS","CMI", "HiCS", "CMI", "HiCS", "CMI", "HiCS")
+SubspaceSizes = c(5, 3.2, 6.2, 2.6, 7.2, 2.4, 6.4, 3.2, 8.2, 2.4, 6.6, 2.2) 
+df = data.frame(Dataset, Algorithm, SubspaceSizes) 
+barplot(df$SubspaceSizes, 
+        names.arg = Dataset,
+        main = "Average size of Top5-Subspaces",
+        xlab="Dataset", 
+        ylab="Average Subspace-Size",
+        col=c("darkblue","deepskyblue"),
+        legend = c("CMI","HiCS"))
+```
+
+```{r, echo=FALSE}
+AUC <- c(0.953, 0.953, 0.798, 0.800, 0.763, 0.731, 0.956, 0.904, 0.905, 0.825, 0.930, 0.869)
+dfAuc = data.frame(Dataset, Algorithm, AUC) 
+barplot(dfAuc$AUC, 
+        names.arg = Dataset,
+        main = "AUC on real world data",
+        xlab="Dataset", 
+        ylab="AUC",
+        ylim = c(0.0, 1.0),
+        col=c("darkblue","deepskyblue"),
+        legend = c("CMI","HiCS"))
+``` 
+
+```{r, echo=FALSE}
+Runtime <- c(134.25, 120.01, 29.45, 26.43, 146.22, 36.86, 4547.24, 385.69, 902.45, 122.51, 26.6, 18.76)
+dfRun = data.frame(Dataset, Algorithm, Runtime) 
+barplot(dfRun$Runtime, 
+        names.arg = Dataset,
+        main = "Runtime in sec.",
+        xlab="Dataset", 
+        ylab="Sec.",
+        ylim = c(0, 5000),
+        col=c("darkblue","deepskyblue"),
+        legend = c("CMI","HiCS"))
+``` 
