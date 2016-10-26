@@ -154,7 +154,7 @@ runExperiments <- function(inputPath,
   # setup
   Log("starting experiments")
   inputs <- list.files(path=inputPath, recursive = T)
-   algorithms <- c("HiCS", "CMI", "GMD")
+   algorithms <- c("HiCS", "CMI")
 
   
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
@@ -218,10 +218,11 @@ runExperiments <- function(inputPath,
                               subsp19 <- sapply(rL$outputSpaces[19], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               subsp20 <- sapply(rL$outputSpaces[20], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               top20SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5, subsp6, subsp7, subsp8, subsp9, subsp10,
-                                                   subsp11, subsp12, subsp13, subsp14, subsp15, subsp16, subsp17, subsp18, subsp19, subs20)
+                                                   subsp11, subsp12, subsp13, subsp14, subsp15, subsp16, subsp17, subsp18, subsp19, subsp20)
                               
                               data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast =rL$contrast[1]))
+                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast =rL$contrast[1],
+                                               contrast2 =rL$contrast[2], contrast3 =rL$contrast[3], contrast4 =rL$contrast[4], contrast5 =rL$contrast[5]))
                             
                               # top 5 subspaces:
                               #top5SS<-data.table(cbind(subspaces = outputSpaces[1:5]), contrast = contrastCMI)

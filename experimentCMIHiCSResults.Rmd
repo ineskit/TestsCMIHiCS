@@ -16,11 +16,11 @@ This document contains the results of a comparison of the two algorithms CMI & H
 For further documentation, see:
 <ul>
   <li>
-    Nguyen, Hoang, Vreeken, Jilles, Müller, Emmanuel, Keller, Fabian and Klemens Bohm. 2013.
+    Nguyen, Hoang, Vreeken, Jilles, M?ller, Emmanuel, Keller, Fabian and Klemens Bohm. 2013.
     "CMI: An Information-Theoretic Contrast Measure for Enhancing Subspace Cluster and Outlier Detection"
   </li>
   <li>
-    Keller, Fabian, Emmanuel Müller, and Klemens Bohm. 2012. "HiCS: High Contrast Subspaces for Density-Based Outlier Ranking." In 2012 IEEE 28th   
+    Keller, Fabian, Emmanuel M?ller, and Klemens Bohm. 2012. "HiCS: High Contrast Subspaces for Density-Based Outlier Ranking." In 2012 IEEE 28th   
     International Conference on Data Engineering, 1037-48. IEEE.
   </li>
 </ul>
@@ -42,6 +42,8 @@ library(knitr)
 
 kable(df, caption = "Datasets - Overview")
 ```
+
+
 Datasets can be downloaded here: 
 [http://www.ipd.uni-karlsruhe.de/~muellere/HiCS/]
 
@@ -59,40 +61,38 @@ load("results/experimentResult.RData")
 ```
 
 ### Results
-The following results were observed after having run the algorithms with the parameters:
-* maxMinPts = 100
-* numCores=1
-* topkSearch = 500
-* topkOutput = 100
+The following results were observed after having run the algorithms with the parameters: <br>
+* maxMinPts = 100 <br>
+* numCores=1 <br>
+* topkSearch = 500 <br>
+* topkOutput = 100 <br>
 
 
+#### AUC
 ```{r, echo=FALSE}
 Dataset = c("Thyroid","Thyroid","Glass","Glass","Ion", "Ion", "Pendigits","Pendigits","Segment","Segment", "Lympho","Lympho") 
 Algorithm = c("CMI", "HiCS","CMI", "HiCS","CMI", "HiCS","CMI", "HiCS", "CMI", "HiCS", "CMI", "HiCS")
-SubspaceSizes = c(5, 3.2, 6.2, 2.6, 7.2, 2.4, 6.4, 3.2, 8.2, 2.4, 6.6, 2.2) 
-df = data.frame(Dataset, Algorithm, SubspaceSizes) 
-barplot(df$SubspaceSizes, 
-        names.arg = Dataset,
-        main = "Average size of Top5-Subspaces",
-        xlab="Dataset", 
-        ylab="Average Subspace-Size",
-        col=c("darkblue","deepskyblue"),
-        legend = c("CMI","HiCS"))
-```
 
-```{r, echo=FALSE}
 AUC <- c(0.953, 0.953, 0.798, 0.800, 0.763, 0.731, 0.956, 0.904, 0.905, 0.825, 0.930, 0.869)
 dfAuc = data.frame(Dataset, Algorithm, AUC) 
-barplot(dfAuc$AUC, 
-        names.arg = Dataset,
-        main = "AUC on real world data",
-        xlab="Dataset", 
-        ylab="AUC",
-        ylim = c(0.0, 1.0),
-        col=c("darkblue","deepskyblue"),
-        legend = c("CMI","HiCS"))
+# barplot(dfAuc$AUC, 
+#         names.arg = Dataset,
+#         main = "AUC on real world data",
+#         xlab="Dataset", 
+#         ylab="AUC",
+#         ylim = c(0.0, 1.0),
+#         col=c("darkblue","deepskyblue"),
+#         legend = c("CMI","HiCS"))
+
+
+library(ggplot2)
+ggplot(dfAuc, aes(factor(Dataset), dfAuc$AUC, fill=Algorithm, x=Dataset, y=AUC, gg)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set2")
+
 ``` 
 
+#### Runtime
 ```{r, echo=FALSE}
 Runtime <- c(134.25, 120.01, 29.45, 26.43, 146.22, 36.86, 4547.24, 385.69, 902.45, 122.51, 26.6, 18.76)
 dfRun = data.frame(Dataset, Algorithm, Runtime) 
@@ -105,3 +105,45 @@ barplot(dfRun$Runtime,
         col=c("darkblue","deepskyblue"),
         legend = c("CMI","HiCS"))
 ``` 
+
+#### Subspaces
+```{r, echo=FALSE}
+
+SubspaceSizes = c(5, 3.2, 6.2, 2.6, 7.2, 2.4, 6.4, 3.2, 8.2, 2.4, 6.6, 2.2) 
+df = data.frame(Dataset, Algorithm, SubspaceSizes) 
+# barplot(df$SubspaceSizes, 
+#         names.arg = Dataset,
+#         main = "Average size of Top5-Subspaces",
+#         xlab="Dataset", 
+#         ylab="Average Subspace-Size",
+#         col=c("darkblue","deepskyblue"),
+#         legend = c("CMI","HiCS"))
+
+ggplot(df, aes(factor(Dataset), SubspaceSizes, fill=Algorithm, x=Dataset, y=SubspaceSizes, gg)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set2") +
+  ggtitle("Average size of Top5-Subspaces")
+
+```
+
+With CMI Subspaces with more dimensions were found. 
+Some examples of found subspaces:
+```{r, echo=FALSE}
+
+library(knitr)
+
+colum <- c(1,2,16:20)
+colNam <- c("Algorithm","Dataset","Subspace 1","Subspace 2","Subspace 3","Subspace 4","Subspace 5")
+
+load("results/experimentResult_glass_161013.RData")
+kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum], caption = "Top-Subspaces - Glass-Dataset",
+      col.names = colNam)
+
+load("results/experimentResult_ion_161019.RData")
+kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum], caption = "Top-Subspaces - Ion-Dataset",
+      col.names = colNam)
+
+load("results/experimentResult_pen_161019.RData")
+kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum], caption = "Top-Subspaces - Pendigits-Dataset",
+      col.names = colNam)
+```
