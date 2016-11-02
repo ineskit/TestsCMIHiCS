@@ -109,7 +109,7 @@ subspaceSearch <- function(data, alpha, numRuns, algorithm, topkSearch, topkOutp
   resList <- list()
   switch(algorithm,
          GMD = {
-           outputSpaces <- GMD(indexMap = indexMatrix, alpha, numRuns)
+           resList$outputSpaces <- GMD(indexMap = indexMatrix, alpha, numRuns)
          },
          HiCS = {
            capture.output(hicsSearchResult <- HiCSSearch(indexMap = indexMatrix, alpha, numRuns, topkSearch = topkSearch, topkOutput = topkOutput), file = NULL)
@@ -154,7 +154,7 @@ runExperiments <- function(inputPath,
   # setup
   Log("starting experiments")
   inputs <- list.files(path=inputPath, recursive = T)
-   algorithms <- c("HiCS", "CMI")
+   algorithms <- c("HiCS", "CMI", "GMD")
 
   
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
@@ -219,11 +219,17 @@ runExperiments <- function(inputPath,
                               subsp20 <- sapply(rL$outputSpaces[20], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               top20SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5, subsp6, subsp7, subsp8, subsp9, subsp10,
                                                    subsp11, subsp12, subsp13, subsp14, subsp15, subsp16, subsp17, subsp18, subsp19, subsp20)
-                              
-                              data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                               durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast =rL$contrast[1],
-                                               contrast2 =rL$contrast[2], contrast3 =rL$contrast[3], contrast4 =rL$contrast[4], contrast5 =rL$contrast[5]))
-                            
+                              #if (rL$contrast[1] != 0){
+                              if (experiment$algorithm != "GMD"){
+                                data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
+                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast =rL$contrast[1],
+                                                 contrast2 =rL$contrast[2], contrast3 =rL$contrast[3], contrast4 =rL$contrast[4], contrast5 =rL$contrast[5]))  
+                              }
+                              else{  
+                                data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
+                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast ="0",
+                                                 contrast2 ="0", contrast3 ="0", contrast4 ="0", contrast5 ="0"))  
+                              }
                               # top 5 subspaces:
                               #top5SS<-data.table(cbind(subspaces = outputSpaces[1:5]), contrast = contrastCMI)
                             }
@@ -245,4 +251,5 @@ runExperiments <- function(inputPath,
 }
 
   # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
+  # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 50, topkOutput = 20)
 

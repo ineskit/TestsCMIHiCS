@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1477496237704.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "4EDE74D9",
+    "lastKnownWriteTime" : 2912822223996592160,
+    "last_content_update" : 1477496237704,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "context" : "package:subcon:::GMD"
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_code_browser"
+}

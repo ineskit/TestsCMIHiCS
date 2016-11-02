@@ -1,8 +1,8 @@
 {
-    "path" : "D:/Uni/SS16/Hiwi/github/TestsCMIHiCS/results",
+    "path" : "D:/Uni/SS16/Hiwi/github/TestsCMIHiCS/results/Param_100_050_020",
     "sortOrder" : [
         {
-            "ascending" : true,
+            "ascending" : false,
             "columnIndex" : 2
         }
     ]
