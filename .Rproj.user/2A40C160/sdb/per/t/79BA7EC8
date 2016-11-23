@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#include \"nearestNeighbors.h\"\n\nusing namespace Rcpp;\n\nRcpp::List reverseNearestNeighborsC(arma::mat knn) {\n  std::map<int, std::set<int> > rnn;\n  std::vector<std::set <int> > result;\n\n  for(unsigned int i=0; i<knn.n_rows; ++i){\n    rnn[i+1] = std::set<int>();\n  }\n\n  for(arma::uword r=0; r < knn.n_rows; ++r){\n    auto it_end = knn.end_row(r);\n    for(auto it = knn.begin_row(r); it!= it_end; ++it){\n      rnn[*it].insert(r + 1);\n    }\n  }\n\n  for(const auto &s : rnn){\n    result.push_back(s.second);\n  }\n\n  return wrap(result);\n}\n\nRcpp::List rnnCountC(Rcpp::List rnn){\n\n// Mapping Point - nearest neighbor-Count\n  std::map<int, int > rnnCount;\n\n  for(unsigned int i=0; i<rnn.size(); ++i){\n    std::vector<int> rnnI = rnn[i];\n    rnnCount[i+1] = rnnI.size();\n  }\n\n  return wrap(rnnCount);\n}\n\n\n\n\nRcpp::NumericVector rnnCountCVecTest(Rcpp::List rnn){\n  \n  // Vector of nearest neighbor-Counts\n  std::vector<int> rnnCount;\n  std::vector<int> rnnIndices;\n  \n  for(unsigned int i=0; i<rnn.size(); ++i){\n    \n    std::vector<int> rnnI = rnn[i];\n    std::vector<int> rnnIndices;\n    \n    rnnIndices.push_back(i);\n    rnnCount.push_back(rnnI.size()); \n  }\n  \n  \n  std::vector<std::pair<int, int>> rnnRes; \n  std::pair<int, int> p = {rnnIndices, rnnCount}; \n  rnnRes.push_back(p); \n   \n   \n   // Sorting after 2nd component\n  bool compareFunc(std::pair<int, int> &a, std::pair<int, int> &b)\n  {\n    return a.second > b.second;\n  }\n\n\n  std::sort(rnnRes.begin(), rnnRes.end(), compareFunc);\n  //std::sort(rnnCount.begin(), rnnCount.end());\n  return wrap(rnnRes);\n}\n \n\n\nRcpp::NumericVector rnnCountCVec(Rcpp::List rnn){\n\n  // Vector of nearest neighbor-Counts\n  std::vector<int> rnnCount;\n\n  for(unsigned int i=0; i<rnn.size(); ++i){\n\n    std::vector<int> rnnI = rnn[i];\n    rnnCount.push_back(rnnI.size()); \n  }\n\n  std::sort(rnnCount.begin(), rnnCount.end());\n  return wrap(rnnCount);\n}\n",
+    "created" : 1479909969591.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3773590568",
+    "id" : "79BA7EC8",
+    "lastKnownWriteTime" : 1479911634,
+    "last_content_update" : 1479911634322,
+    "path" : "D:/Uni/SS16/Hiwi/github/R-subcon/src/nearestNeighbors.cpp",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "cpp"
+}

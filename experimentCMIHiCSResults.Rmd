@@ -6,7 +6,14 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(data.table)
+library(knitr)
 knitr::opts_chunk$set(echo = TRUE)
+read_chunk("generatePlots.R")
 ```
 
 ##  Comparing CMI and HiCS Subspace Search using real-world datasets
@@ -16,11 +23,11 @@ This document contains the results of a comparison of the two algorithms CMI & H
 For further documentation, see:
 <ul>
   <li>
-    Nguyen, Hoang, Vreeken, Jilles, M?ller, Emmanuel, Keller, Fabian and Klemens Bohm. 2013.
+    Nguyen, Hoang, Vreeken, Jilles, Mueller, Emmanuel, Keller, Fabian and Klemens Boehm. 2013.
     "CMI: An Information-Theoretic Contrast Measure for Enhancing Subspace Cluster and Outlier Detection"
   </li>
   <li>
-    Keller, Fabian, Emmanuel M?ller, and Klemens Bohm. 2012. "HiCS: High Contrast Subspaces for Density-Based Outlier Ranking." In 2012 IEEE 28th   
+    Keller, Fabian, Emmanuel Mueller, and Klemens Boehm. 2012. "HiCS: High Contrast Subspaces for Density-Based Outlier Ranking." In 2012 IEEE 28th   
     International Conference on Data Engineering, 1037-48. IEEE.
   </li>
 </ul>
@@ -38,7 +45,6 @@ Rows <- c(3772, 214, 351, 6737, 2013, 148)
 Dimensions <- c(6, 7, 32, 16, 19, 18)
 
 df <-data.frame(Datasets,Rows,Dimensions)
-library(knitr)
 
 kable(df, caption = "Datasets - Overview")
 ```
@@ -61,14 +67,15 @@ load("results/experimentResult.RData")
 ```
 
 ### Results
-The following results were observed after having run the algorithms with the parameters: <br>
+The following results, unless otherwise noted, were observed after having run the algorithms with the parameters: <br>
 * maxMinPts = 100 <br>
 * numCores=1 <br>
 * topkSearch = 500 <br>
 * topkOutput = 100 <br>
 
 
-#### AUC
+#### AUC on real world data 
+##### Algorithms: HiCS and CMI
 ```{r, echo=FALSE}
 Dataset = c("Thyroid","Thyroid","Glass","Glass","Ion", "Ion", "Pendigits","Pendigits","Segment","Segment", "Lympho","Lympho") 
 Algorithm = c("CMI", "HiCS","CMI", "HiCS","CMI", "HiCS","CMI", "HiCS", "CMI", "HiCS", "CMI", "HiCS")
@@ -91,6 +98,21 @@ ggplot(dfAuc, aes(factor(Dataset), dfAuc$AUC, fill=Algorithm, x=Dataset, y=AUC, 
   scale_fill_brewer(palette = "Set2")
 
 ``` 
+
+##### Algorithms: HiCS, CMI and GMD
+
+The following results are based on the same datasets that are above described.
+Additionally experiments run with GMD-algorithm. (see: TODO)
+The parameter changed: <br>
+* maxMinPts = 100 <br>
+* numCores=1 <br>
+* topkSearch =  50 <br>
+* topkOutput = 100 <br>
+
+```{r eval=T, echo=FALSE}
+<<plotTest>>
+```
+
 
 #### Runtime
 ```{r, echo=FALSE}
@@ -126,24 +148,42 @@ ggplot(df, aes(factor(Dataset), SubspaceSizes, fill=Algorithm, x=Dataset, y=Subs
 
 ```
 
-With CMI Subspaces with more dimensions were found. 
+With CMI Subspaces more dimensions were found. 
 Some examples of found subspaces:
 ```{r, echo=FALSE}
-
-library(knitr)
 
 colum <- c(1,2,16:20)
 colNam <- c("Algorithm","Dataset","Subspace 1","Subspace 2","Subspace 3","Subspace 4","Subspace 5")
 
-load("results/experimentResult_glass_161013.RData")
-kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum], caption = "Top-Subspaces - Glass-Dataset",
-      col.names = colNam)
+load("results/Param_100_500_100/experimentResult_glass_161013.RData")
+combRes <-combinedResult[,colum, with=FALSE]
+combResUG <-combRes[!duplicated(combRes)]
+kable(combResUG, caption = "Top-5-Subspaces - Glass-Dataset", col.names = colNam)
 
-load("results/experimentResult_ion_161019.RData")
-kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum], caption = "Top-Subspaces - Ion-Dataset",
-      col.names = colNam)
+load("results/Param_100_500_100/experimentResult_ion_161019.RData")
+combRes <-combinedResult[,colum, with=FALSE]
+combResUI <-combRes[!duplicated(combRes)]
+kable(combResUI, caption = "Top-5-Subspaces - Ion-Dataset", col.names = colNam)
 
-load("results/experimentResult_pen_161019.RData")
-kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum], caption = "Top-Subspaces - Pendigits-Dataset",
-      col.names = colNam)
+
+load("results/Param_100_500_100/experimentResult_pen_161019.RData")
+combRes <-combinedResult[,colum, with=FALSE]
+combResUP <-combRes[!duplicated(combRes)]
+kable(combResUP, caption = "Top-5-Subspaces - Pendigits-Dataset", col.names = colNam)
+
+# kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum,with=FALSE], caption = "Top-5-Subspaces - Pendigits-Dataset",  col.names = colNam)
 ```
+
+
+
+```{r eval=T, echo=FALSE}
+combResUG <- rbind(combResUG, combResUI, combResUP)
+ # gather first 
+long_DF <- combResUG %>% gather(name, subsp, subsp1:subsp5)
+#sorted <- long_DF[order(dataset),] # todo: funktioniert nicht
+subspaces <- mutate(long_DF, length = length(subsp)) 
+length(long_DF$subsp[1]) 
+length(as.vector(long_DF$subsp[2])) # Inhalt: "[1,2,3,4,5,6,7]", Length=1 (statt 7)
+test <- as.numeric(long_DF$subsp[2])
+
+``` 

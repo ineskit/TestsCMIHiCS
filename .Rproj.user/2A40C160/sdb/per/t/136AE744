@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#ifndef NEARESTNEIGHBORS_H\n#define NEARESTNEIGHBORS_H\n\n#include <RcppArmadillo.h>\n\nusing namespace Rcpp;\n\n//' Reverse Nearest Neighbors\n//'\n//' Extracts the reverse nearest neighbors for a given knn matrix\n//'\n//' @param knn n x k Matrix of knn indices\n//'\n//' @export\n// [[Rcpp::export]]\nRcpp::List reverseNearestNeighborsC(arma::mat knn);\n\n//' Reverse Nearest Neighbors-Counts\n//'\n//' Extracts the reverse nearest neighbors-counts for a given rnn list\n//'\n//' @param list of vector of rnn indices\n//'\n//' @export list of point indices and their nn-counts\n// [[Rcpp::export]]\nRcpp::List rnnCountC(Rcpp::List rnn);\n\n//' Reverse Nearest Neighbors-Counts\n//'\n//' Extracts the reverse nearest neighbors-counts for a given rnn list\n//'\n//' @param list of vector of rnn indices\n//'\n//' @export vector of nn-counts\n// [[Rcpp::export]]\nRcpp::NumericVector rnnCountCVec(Rcpp::List rnn);\n\n// [[Rcpp::export]]\nRcpp::NumericVector rnnCountCVecTest(Rcpp::List rnn){\n\n#endif\n",
+    "created" : 1479911695217.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1986351703",
+    "id" : "136AE744",
+    "lastKnownWriteTime" : 1479911706,
+    "last_content_update" : 1479911706057,
+    "path" : "D:/Uni/SS16/Hiwi/github/R-subcon/src/nearestNeighbors.h",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "h"
+}

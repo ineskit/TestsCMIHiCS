@@ -156,7 +156,7 @@ runExperiments <- function(inputPath,
   inputs <- list.files(path=inputPath, recursive = T)
    algorithms <- c("HiCS", "CMI", "GMD")
 
-  
+
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
 
   resultSet <- data.table()
@@ -219,16 +219,40 @@ runExperiments <- function(inputPath,
                               subsp20 <- sapply(rL$outputSpaces[20], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               top20SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5, subsp6, subsp7, subsp8, subsp9, subsp10,
                                                    subsp11, subsp12, subsp13, subsp14, subsp15, subsp16, subsp17, subsp18, subsp19, subsp20)
-                              #if (rL$contrast[1] != 0){
+                        
+                              subsp1V <- data.table(rL$outputSpaces[1])
+                              subsp2V <- data.table(rL$outputSpaces[2])
+                              subsp3V <- data.table(rL$outputSpaces[3])
+                              subsp4V <- data.table(rL$outputSpaces[4])
+                              subsp5V <- data.table(rL$outputSpaces[5])
+                              subsp6V <- data.table(rL$outputSpaces[6])
+                              subsp7V <- data.table(rL$outputSpaces[7])
+                              subsp8V <- data.table(rL$outputSpaces[8])
+                              subsp9V <- data.table(rL$outputSpaces[9])
+                              subsp10V <- data.table(rL$outputSpaces[10])
+                              subsp11V <- data.table(rL$outputSpaces[11])
+                              subsp12V <- data.table(rL$outputSpaces[12])
+                              subsp13V <- data.table(rL$outputSpaces[13])
+                              subsp14V <- data.table(rL$outputSpaces[14])
+                              subsp15V <- data.table(rL$outputSpaces[15])
+                              subsp16V <- data.table(rL$outputSpaces[16])
+                              subsp17V <- data.table(rL$outputSpaces[17])
+                              subsp18V <- data.table(rL$outputSpaces[18])
+                              subsp19V <- data.table(rL$outputSpaces[19])
+                              subsp20V <- data.table(rL$outputSpaces[20])
+                              
+                              top20SSV <- data.table(subsp1V, subsp2V, subsp3V, subsp4V, subsp5V, subsp6V, subsp7V, subsp8V, subsp9V, subsp10V,
+                                                    subsp11V, subsp12V, subsp13V, subsp14V, subsp15V, subsp16V, subsp17V, subsp18V, subsp19V, subsp20V)
+                              
                               if (experiment$algorithm != "GMD"){
                                 data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast =rL$contrast[1],
-                                                 contrast2 =rL$contrast[2], contrast3 =rL$contrast[3], contrast4 =rL$contrast[4], contrast5 =rL$contrast[5]))  
+                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, top20SSV, Highestcontrast =rL$contrast[1],
+                                                 contrast2 =rL$contrast[2], contrast3 =rL$contrast[3], contrast4 =rL$contrast[4], contrast5 =rL$contrast[5]))
                               }
-                              else{  
+                              else{
                                 data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, Highestcontrast ="0",
-                                                 contrast2 ="0", contrast3 ="0", contrast4 ="0", contrast5 ="0"))  
+                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, top20SSV, Highestcontrast ="0",
+                                                 contrast2 ="0", contrast3 ="0", contrast4 ="0", contrast5 ="0"))
                               }
                               # top 5 subspaces:
                               #top5SS<-data.table(cbind(subspaces = outputSpaces[1:5]), contrast = contrastCMI)
@@ -240,7 +264,7 @@ runExperiments <- function(inputPath,
   # store result
 
   save(combinedResult, file=paste0(outputFolder,"/",outputFile))
-  
+
   #outputFileEnh <- paste0(outputFile, "_enh")
   #save(top5SS, file=paste0(outputFolder,"/",outputFileEnh))
   # cleanup

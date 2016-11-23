@@ -1,1 +1,1 @@
-{"active_set":"","sets":[]}
+{"active_set":"C++ Find Usages: reverseNearestNeighborsC","sets":[{"base_path":"","markers":[{"column":12,"line":5,"log_line":-1,"log_path":"","message":"Rcpp::List <strong>reverseNearestNeighborsC</strong>(arma::mat knn) {\r","path":"D:/Uni/SS16/Hiwi/github/R-subcon/src/nearestNeighbors.cpp","show_error_list":true,"type":5}],"name":"C++ Find Usages: reverseNearestNeighborsC"}]}
