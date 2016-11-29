@@ -82,14 +82,6 @@ Algorithm = c("CMI", "HiCS","CMI", "HiCS","CMI", "HiCS","CMI", "HiCS", "CMI", "H
 
 AUC <- c(0.953, 0.953, 0.798, 0.800, 0.763, 0.731, 0.956, 0.904, 0.905, 0.825, 0.930, 0.869)
 dfAuc = data.frame(Dataset, Algorithm, AUC) 
-# barplot(dfAuc$AUC, 
-#         names.arg = Dataset,
-#         main = "AUC on real world data",
-#         xlab="Dataset", 
-#         ylab="AUC",
-#         ylim = c(0.0, 1.0),
-#         col=c("darkblue","deepskyblue"),
-#         legend = c("CMI","HiCS"))
 
 
 library(ggplot2)
@@ -155,15 +147,25 @@ Some examples of found subspaces:
 colum <- c(1,2,16:20)
 colNam <- c("Algorithm","Dataset","Subspace 1","Subspace 2","Subspace 3","Subspace 4","Subspace 5")
 
-load("results/Param_100_500_100/experimentResult_glass_161013.RData")
+colSSVec <- c(1,2,36:55)
+
+# load("results/Param_100_500_100/experimentResult_glass_161013.RData")
+load("results/Param_100_050_020_SSVec/experimentResult_glass_161129.RData")
 combRes <-combinedResult[,colum, with=FALSE]
 combResUG <-combRes[!duplicated(combRes)]
 kable(combResUG, caption = "Top-5-Subspaces - Glass-Dataset", col.names = colNam)
+# Subspace Vector
+glassSS <-combinedResult[,colSSVec, with=FALSE]
+glassSSU <-glassSS[!duplicated(glassSS$algorithm)]
+
 
 load("results/Param_100_500_100/experimentResult_ion_161019.RData")
 combRes <-combinedResult[,colum, with=FALSE]
 combResUI <-combRes[!duplicated(combRes)]
 kable(combResUI, caption = "Top-5-Subspaces - Ion-Dataset", col.names = colNam)
+# Subspace Vector
+ionSS <-combinedResult[,colSSVec, with=FALSE]
+ionSSU <-ionSS[!duplicated(ionSS$algorithm)]
 
 
 load("results/Param_100_500_100/experimentResult_pen_161019.RData")
@@ -177,13 +179,63 @@ kable(combResUP, caption = "Top-5-Subspaces - Pendigits-Dataset", col.names = co
 
 
 ```{r eval=T, echo=FALSE}
-combResUG <- rbind(combResUG, combResUI, combResUP)
- # gather first 
-long_DF <- combResUG %>% gather(name, subsp, subsp1:subsp5)
-#sorted <- long_DF[order(dataset),] # todo: funktioniert nicht
-subspaces <- mutate(long_DF, length = length(subsp)) 
-length(long_DF$subsp[1]) 
-length(as.vector(long_DF$subsp[2])) # Inhalt: "[1,2,3,4,5,6,7]", Length=1 (statt 7)
-test <- as.numeric(long_DF$subsp[2])
 
+ssv <- rbind(glassSSU, ionSSU)
+ # gather first 
+long_DF <- glassSSU %>% gather(name, subsp, subsp1V:subsp20V)
+sortedSS <- long_DF[order(long_DF$dataset),]
+
+# subspace length
+lengthSS <- c(length(long_DF$subsp[[1]]))
+for (i in 2:length(long_DF$subsp)){
+    lengthSS <- c(lengthSS, length(long_DF$subsp[[i]]))
+}
+subspaces <- mutate(long_DF, length = lengthSS) 
+sortedSS <- subspaces[order(subspaces$algorithm),]
+
+# MEAN
+#   global mean
+mean(subspaces$length)
+
+# mean per algorithm
+SSCMI <- filter(subspaces, subspaces$algorithm == "CMI")
+mean(SSCMI$length)
+
+SSHics <- filter(subspaces, subspaces$algorithm == "HiCS")
+mean(SSHics$length)
+
+SSGMD <- filter(subspaces, subspaces$algorithm == "GMD")
+mean(SSGMD$length)
+
+# mean per algorithm per dataset
+datasDistinct <- subspaces %>% select(dataset) %>% distinct
+algorDistinct <- subspaces %>% select(algorithm) %>% distinct
+algdsDistinct <- subspaces %>% select(algorithm, dataset) %>% distinct
+
+for (i in 1:nrow(algdsDistinct)){
+  # tmpMean <- filter(subspaces, subspaces$algorithm == algdsDistinct$algorithm & subspaces$dataset == algdsDistinct$dataset) 
+  #           %>% mean 
+  # mean(select(filter(subspaces, subspaces$algorithm == "CMI" & subspaces$dataset == "glass.csv"), length))
+  
+  
+  # tmpdf <- filter(subspaces, subspaces$algorithm == "CMI" & subspaces$dataset == "glass.csv") %>% select(length) 
+  # tmpMean(tmpdf$length)
+  
+  tmpdf <- filter(subspaces, subspaces$algorithm == algdsDistinct$algorithm[i] & subspaces$dataset == algdsDistinct$dataset[i])             %>% select(length)
+  
+  tmpMean <- mean(tmpdf$length)
+  print(tmpMean)
+  v <- data.frame(dataset = algdsDistinct$dataset[i], algorithm = algdsDistinct$algorithm[i], mean = tmpMean)
+  dste <- rbind(dste, v)
+
+}
+
+# algo <- rep(algorDistinct, length(datasDistinct))
+# datas <- rep(datasDistinct, nrow(algorDistinct))
+
+
+ggplot(dste, aes(factor(dataset), mean, fill=algorithm, x=dataset, y=mean, gg)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set2") +
+  ggtitle("Average size of Top20-Subspaces")
 ``` 
