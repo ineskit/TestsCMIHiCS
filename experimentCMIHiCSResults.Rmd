@@ -159,7 +159,8 @@ glassSS <-combinedResult[,colSSVec, with=FALSE]
 glassSSU <-glassSS[!duplicated(glassSS$algorithm)]
 
 
-load("results/Param_100_500_100/experimentResult_ion_161019.RData")
+# load("results/Param_100_500_100/experimentResult_ion_161019.RData")
+load("results/Param_100_050_020_SSVec/experimentResult_ion_161129.RData")
 combRes <-combinedResult[,colum, with=FALSE]
 combResUI <-combRes[!duplicated(combRes)]
 kable(combResUI, caption = "Top-5-Subspaces - Ion-Dataset", col.names = colNam)
@@ -179,25 +180,54 @@ kable(combResUP, caption = "Top-5-Subspaces - Pendigits-Dataset", col.names = co
 
 
 ```{r eval=T, echo=FALSE}
+# load data for subspace evaluation
+ionSS <-combinedResult[,colSSVec, with=FALSE]
+ionSSU <-ionSS[!duplicated(ionSS$algorithm)]
+
+
 
 ssv <- rbind(glassSSU, ionSSU)
  # gather first 
-long_DF <- glassSSU %>% gather(name, subsp, subsp1V:subsp20V)
-sortedSS <- long_DF[order(long_DF$dataset),]
+long_DF <- ssv %>% gather(name, subsp, subsp1V:subsp20V)
+# sortedSS <- long_DF[order(long_DF$dataset),]
 
 # subspace length
 lengthSS <- c(length(long_DF$subsp[[1]]))
+#   .. add length as new column
 for (i in 2:length(long_DF$subsp)){
     lengthSS <- c(lengthSS, length(long_DF$subsp[[i]]))
 }
 subspaces <- mutate(long_DF, length = lengthSS) 
-sortedSS <- subspaces[order(subspaces$algorithm),]
+
+# mean per algorithm per dataset
+# datasDistinct <- subspaces %>% select(dataset) %>% distinct
+# algorDistinct <- subspaces %>% select(algorithm) %>% distinct
+algdsDistinct <- subspaces %>% select(algorithm, dataset) %>% distinct
+
+dfMean <- data.frame()
+for (i in 1:nrow(algdsDistinct)){
+ 
+  tmpdf <- filter(subspaces, subspaces$algorithm == algdsDistinct$algorithm[i] & subspaces$dataset == algdsDistinct$dataset[i])             %>% select(length)
+  
+  tmpMean <- mean(tmpdf$length)
+  print(tmpMean)
+  v <- data.frame(dataset = algdsDistinct$dataset[i], algorithm = algdsDistinct$algorithm[i], mean = tmpMean)
+  dfMean  <- rbind(dfMean, v)
+
+}
+
+
+ggplot(dfMean, aes(factor(dataset), mean, fill=algorithm, x=dataset, y=mean, gg)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set2") +
+  ggtitle("Average size of Top20-Subspaces")
+
 
 # MEAN
 #   global mean
 mean(subspaces$length)
 
-# mean per algorithm
+#   mean per algorithm
 SSCMI <- filter(subspaces, subspaces$algorithm == "CMI")
 mean(SSCMI$length)
 
@@ -207,35 +237,4 @@ mean(SSHics$length)
 SSGMD <- filter(subspaces, subspaces$algorithm == "GMD")
 mean(SSGMD$length)
 
-# mean per algorithm per dataset
-datasDistinct <- subspaces %>% select(dataset) %>% distinct
-algorDistinct <- subspaces %>% select(algorithm) %>% distinct
-algdsDistinct <- subspaces %>% select(algorithm, dataset) %>% distinct
-
-for (i in 1:nrow(algdsDistinct)){
-  # tmpMean <- filter(subspaces, subspaces$algorithm == algdsDistinct$algorithm & subspaces$dataset == algdsDistinct$dataset) 
-  #           %>% mean 
-  # mean(select(filter(subspaces, subspaces$algorithm == "CMI" & subspaces$dataset == "glass.csv"), length))
-  
-  
-  # tmpdf <- filter(subspaces, subspaces$algorithm == "CMI" & subspaces$dataset == "glass.csv") %>% select(length) 
-  # tmpMean(tmpdf$length)
-  
-  tmpdf <- filter(subspaces, subspaces$algorithm == algdsDistinct$algorithm[i] & subspaces$dataset == algdsDistinct$dataset[i])             %>% select(length)
-  
-  tmpMean <- mean(tmpdf$length)
-  print(tmpMean)
-  v <- data.frame(dataset = algdsDistinct$dataset[i], algorithm = algdsDistinct$algorithm[i], mean = tmpMean)
-  dste <- rbind(dste, v)
-
-}
-
-# algo <- rep(algorDistinct, length(datasDistinct))
-# datas <- rep(datasDistinct, nrow(algorDistinct))
-
-
-ggplot(dste, aes(factor(dataset), mean, fill=algorithm, x=dataset, y=mean, gg)) +
-  geom_bar(stat="identity", position = "dodge") + 
-  scale_fill_brewer(palette = "Set2") +
-  ggtitle("Average size of Top20-Subspaces")
 ``` 

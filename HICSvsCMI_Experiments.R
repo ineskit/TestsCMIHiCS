@@ -154,8 +154,8 @@ runExperiments <- function(inputPath,
   # setup
   Log("starting experiments")
   inputs <- list.files(path=inputPath, recursive = T)
-   algorithms <- c("HiCS", "CMI", "GMD")
-
+    algorithms <- c("HiCS", "CMI", "GMD")
+    #algorithms <- c("GMD")
 
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
 
@@ -219,7 +219,7 @@ runExperiments <- function(inputPath,
                               subsp20 <- sapply(rL$outputSpaces[20], function(x) paste0("[",paste(x, collapse = ","),"]"))
                               top20SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5, subsp6, subsp7, subsp8, subsp9, subsp10,
                                                    subsp11, subsp12, subsp13, subsp14, subsp15, subsp16, subsp17, subsp18, subsp19, subsp20)
-                        
+
                               subsp1V <- rL$outputSpaces[1]
                               subsp2V <- rL$outputSpaces[2]
                               subsp3V <- rL$outputSpaces[3]
@@ -243,8 +243,8 @@ runExperiments <- function(inputPath,
 
                               top20SSV <- data.table(subsp1V, subsp2V, subsp3V, subsp4V, subsp5V, subsp6V, subsp7V, subsp8V, subsp9V, subsp10V,
                                                     subsp11V, subsp12V, subsp13V, subsp14V, subsp15V, subsp16V, subsp17V, subsp18V, subsp19V, subsp20V)
-                             
-                              
+
+
                               if (experiment$algorithm != "GMD"){
                                 data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
                                                  durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, top20SSV, Highestcontrast =rL$contrast[1],
