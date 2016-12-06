@@ -1,7 +1,7 @@
 ---
 title: "Experiments CMI & HiCS"
 author: "Ines Machinek"
-date: "25 Oktober 2016"
+date: "December 6th, 2016"
 output: html_document
 ---
 
@@ -19,7 +19,7 @@ read_chunk("generatePlots.R")
 ##  Comparing CMI and HiCS Subspace Search using real-world datasets
 
 ### Overview
-This document contains the results of a comparison of the two algorithms CMI & HiCS.
+This document contains the results of a comparison of the algorithms CMI, HiCS & GMD.
 For further documentation, see:
 <ul>
   <li>
@@ -31,18 +31,20 @@ For further documentation, see:
     International Conference on Data Engineering, 1037-48. IEEE.
   </li>
 </ul>
-Both algorithms were implemented in inline c++ in R, using the Rcpp-package.
+CMI and HiCS algorithms were implemented in inline c++ in R, using the Rcpp-package.
 Experiments ran on Intel core i7-4600U CPU and 8 GB RAM.
 
+<br>
+<br>
 
 ### Datasets
 The datasets for testing were:
 
 ```{r echo = FALSE, results = 'asis'}
 
-Datasets <- c("Thyroid", "Glass", "Ion", "Pendigits", "Segment", "Lympho")
-Rows <- c(3772, 214, 351, 6737, 2013, 148)
-Dimensions <- c(6, 7, 32, 16, 19, 18)
+Datasets <- c("Ann Thyroid", "Diabetes", "Glass", "Ion", "Lympho", "Pendigits", "Segment")
+Rows <- c(3772, 768, 214, 351, 148, 6737, 2013)
+Dimensions <- c(6, 8, 7, 32, 18, 16, 19)
 
 df <-data.frame(Datasets,Rows,Dimensions)
 
@@ -51,31 +53,39 @@ kable(df, caption = "Datasets - Overview")
 
 
 Datasets can be downloaded here: 
-[http://www.ipd.uni-karlsruhe.de/~muellere/HiCS/]
+[IPD, KIT Karlsruhe](http://www.ipd.uni-karlsruhe.de/~muellere/HiCS/)
+<br>
+<br>
 
 ### Run Experiments
 1. Download the datasets into the *datasets* folder
 2. Source the *HICSvsCMI_Experiments.R* script
-3. Start experiment by calling **runExperiments**-function
+3. Start experiment by calling **runExperiments**-function, for example:
 ```{r eval=FALSE}
   finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
 ```
 Automatically a file *experimentResult.RData* will be written to the *results* folder.
+
 Results can be loaded by
 ```{r eval=FALSE}
 load("results/experimentResult.RData")
 ```
+This Rmd-File assumes one RData-File per dataset to knit the results properly. 
+<br>
+<br>
+
 
 ### Results
 The following results, unless otherwise noted, were observed after having run the algorithms with the parameters: <br>
-* maxMinPts = 100 <br>
-* numCores=1 <br>
-* topkSearch = 500 <br>
-* topkOutput = 100 <br>
+* maxMinPts = 100   <br>
+* numCores=1        <br>
+* topkSearch = 500  <br>
+* topkOutput = 100   <br>
 
 
 #### AUC on real world data 
-##### Algorithms: HiCS and CMI
+#### Algorithms: HiCS and CMI
+<!-- todo: AUC automatisiert auslesen aus den Dateien -->
 ```{r, echo=FALSE}
 Dataset = c("Thyroid","Thyroid","Glass","Glass","Ion", "Ion", "Pendigits","Pendigits","Segment","Segment", "Lympho","Lympho") 
 Algorithm = c("CMI", "HiCS","CMI", "HiCS","CMI", "HiCS","CMI", "HiCS", "CMI", "HiCS", "CMI", "HiCS")
@@ -90,24 +100,26 @@ ggplot(dfAuc, aes(factor(Dataset), dfAuc$AUC, fill=Algorithm, x=Dataset, y=AUC, 
   scale_fill_brewer(palette = "Set2")
 
 ``` 
-
-##### Algorithms: HiCS, CMI and GMD
+<br>
+<br>
+#### Algorithms: HiCS, CMI and GMD
 
 The following results are based on the same datasets that are above described.
-Additionally experiments run with GMD-algorithm. (see: TODO)
+Additionally experiments run with GMD-algorithm. (see: [GMD](https://github.com/holtri/Rsubcon))
 The parameter changed: <br>
-* maxMinPts = 100 <br>
-* numCores=1 <br>
-* topkSearch =  50 <br>
-* topkOutput = 100 <br>
+* maxMinPts = 100   <br>
+* numCores=1        <br>
+* topkSearch = 50   <br>
+* topkOutput = 20   <br>
 
 ```{r eval=T, echo=FALSE}
 <<plotTest>>
 ```
 
-
+<br>
+<br>
 #### Runtime
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 Runtime <- c(134.25, 120.01, 29.45, 26.43, 146.22, 36.86, 4547.24, 385.69, 902.45, 122.51, 26.6, 18.76)
 dfRun = data.frame(Dataset, Algorithm, Runtime) 
 barplot(dfRun$Runtime, 
@@ -121,17 +133,10 @@ barplot(dfRun$Runtime,
 ``` 
 
 #### Subspaces
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 
 SubspaceSizes = c(5, 3.2, 6.2, 2.6, 7.2, 2.4, 6.4, 3.2, 8.2, 2.4, 6.6, 2.2) 
 df = data.frame(Dataset, Algorithm, SubspaceSizes) 
-# barplot(df$SubspaceSizes, 
-#         names.arg = Dataset,
-#         main = "Average size of Top5-Subspaces",
-#         xlab="Dataset", 
-#         ylab="Average Subspace-Size",
-#         col=c("darkblue","deepskyblue"),
-#         legend = c("CMI","HiCS"))
 
 ggplot(df, aes(factor(Dataset), SubspaceSizes, fill=Algorithm, x=Dataset, y=SubspaceSizes, gg)) +
   geom_bar(stat="identity", position = "dodge") + 
@@ -139,54 +144,73 @@ ggplot(df, aes(factor(Dataset), SubspaceSizes, fill=Algorithm, x=Dataset, y=Subs
   ggtitle("Average size of Top5-Subspaces")
 
 ```
-
+<br>
+<br>
 With CMI Subspaces more dimensions were found. 
 Some examples of found subspaces:
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 
 colum <- c(1,2,16:20)
 colNam <- c("Algorithm","Dataset","Subspace 1","Subspace 2","Subspace 3","Subspace 4","Subspace 5")
 
-colSSVec <- c(1,2,36:55)
-
-# load("results/Param_100_500_100/experimentResult_glass_161013.RData")
 load("results/Param_100_050_020_SSVec/experimentResult_glass_161129.RData")
 combRes <-combinedResult[,colum, with=FALSE]
 combResUG <-combRes[!duplicated(combRes)]
 kable(combResUG, caption = "Top-5-Subspaces - Glass-Dataset", col.names = colNam)
-# Subspace Vector
-glassSS <-combinedResult[,colSSVec, with=FALSE]
-glassSSU <-glassSS[!duplicated(glassSS$algorithm)]
 
-
-# load("results/Param_100_500_100/experimentResult_ion_161019.RData")
 load("results/Param_100_050_020_SSVec/experimentResult_ion_161129.RData")
 combRes <-combinedResult[,colum, with=FALSE]
 combResUI <-combRes[!duplicated(combRes)]
 kable(combResUI, caption = "Top-5-Subspaces - Ion-Dataset", col.names = colNam)
-# Subspace Vector
-ionSS <-combinedResult[,colSSVec, with=FALSE]
-ionSSU <-ionSS[!duplicated(ionSS$algorithm)]
-
 
 load("results/Param_100_500_100/experimentResult_pen_161019.RData")
 combRes <-combinedResult[,colum, with=FALSE]
 combResUP <-combRes[!duplicated(combRes)]
 kable(combResUP, caption = "Top-5-Subspaces - Pendigits-Dataset", col.names = colNam)
 
-# kable(combinedResult[which(!duplicated(combinedResult[,16:20])),colum,with=FALSE], caption = "Top-5-Subspaces - Pendigits-Dataset",  col.names = colNam)
 ```
 
 
 
-```{r eval=T, echo=FALSE}
+```{r eval=T, echo=FALSE, warning=FALSE}
+
 # load data for subspace evaluation
+colSSVec <- c(1,2,36:55)
+load("results/Param_100_050_020_SSVec/experimentResult_ann_161129.RData")
+annSS <-combinedResult[,colSSVec, with=FALSE]
+annSSU <-annSS[!duplicated(annSS$algorithm)]
+
+# load("results/Param_100_050_020_SSVec/experimentResult_ann_161129.RData")
+# breastSS <-combinedResult[,colSSVec, with=FALSE]
+# breastU <-breastSS[!duplicated(breastSS$algorithm)]
+
+load("results/Param_100_050_020_SSVec/experimentResult_diabetes_161206.RData")
+diabSS <-combinedResult[,colSSVec, with=FALSE]
+diabSSU <-diabSS[!duplicated(diabSS$algorithm)]
+
+load("results/Param_100_050_020_SSVec/experimentResult_glass_161129.RData")
+glassSS <-combinedResult[,colSSVec, with=FALSE]
+glassSSU <-glassSS[!duplicated(glassSS$algorithm)]
+
+load("results/Param_100_050_020_SSVec/experimentResult_ion_161129.RData")
 ionSS <-combinedResult[,colSSVec, with=FALSE]
 ionSSU <-ionSS[!duplicated(ionSS$algorithm)]
 
+load("results/Param_100_050_020_SSVec/experimentResult_lymph_161206.RData")
+lympSS <-combinedResult[,colSSVec, with=FALSE]
+lympSSU <-lympSS[!duplicated(lympSS$algorithm)]
+
+load("results/Param_100_050_020_SSVec/experimentResult_pen_161206.RData")
+penSS <-combinedResult[,colSSVec, with=FALSE]
+penSSU <-penSS[!duplicated(penSS$algorithm)]
+
+load("results/Param_100_050_020_SSVec/experimentResult_segmentn_161206.RData")
+segmSS <-combinedResult[,colSSVec, with=FALSE]
+segmSSU <-segmSS[!duplicated(segmSS$algorithm)]
 
 
-ssv <- rbind(glassSSU, ionSSU)
+ssv <- rbind(annSSU, diabSSU, glassSSU, ionSSU, lympSSU, penSSU, segmSSU)
+
  # gather first 
 long_DF <- ssv %>% gather(name, subsp, subsp1V:subsp20V)
 # sortedSS <- long_DF[order(long_DF$dataset),]
@@ -210,7 +234,7 @@ for (i in 1:nrow(algdsDistinct)){
   tmpdf <- filter(subspaces, subspaces$algorithm == algdsDistinct$algorithm[i] & subspaces$dataset == algdsDistinct$dataset[i])             %>% select(length)
   
   tmpMean <- mean(tmpdf$length)
-  print(tmpMean)
+  # print(tmpMean)
   v <- data.frame(dataset = algdsDistinct$dataset[i], algorithm = algdsDistinct$algorithm[i], mean = tmpMean)
   dfMean  <- rbind(dfMean, v)
 
@@ -220,21 +244,37 @@ for (i in 1:nrow(algdsDistinct)){
 ggplot(dfMean, aes(factor(dataset), mean, fill=algorithm, x=dataset, y=mean, gg)) +
   geom_bar(stat="identity", position = "dodge") + 
   scale_fill_brewer(palette = "Set2") +
-  ggtitle("Average size of Top20-Subspaces")
+  labs(title ="Average size of Top20-Subspaces", y = "Mean size") 
+``` 
 
 
+Obviously the size of the subspaces is much higher for CMI than for HiCs and for GMD. 
+A reason is maybe the higher score a subspace gets by adding further dimensions. 
+
+```{r eval=T, echo=FALSE, warning=FALSE}
 # MEAN
 #   global mean
-mean(subspaces$length)
+globalMean <- mean(subspaces$length)
 
 #   mean per algorithm
+meanAlg <- data.frame()
 SSCMI <- filter(subspaces, subspaces$algorithm == "CMI")
-mean(SSCMI$length)
+meanCMI <- mean(SSCMI$length)
+nL <- data.frame(algorithm = "CMI", mean = meanCMI)
+meanAlg <- rbind(meanAlg, nL)
 
 SSHics <- filter(subspaces, subspaces$algorithm == "HiCS")
-mean(SSHics$length)
+meanHics <- mean(SSHics$length)
+nL <- data.frame(algorithm = "HiCS", mean = meanHics)
+meanAlg <- rbind(meanAlg, nL)
 
 SSGMD <- filter(subspaces, subspaces$algorithm == "GMD")
-mean(SSGMD$length)
+meanGMD <- mean(SSGMD$length)
+nL <- data.frame(algorithm = "GMD", mean = meanGMD)
+meanAlg <- rbind(meanAlg, nL)
 
+ggplot(meanAlg, mapping = aes(factor(algorithm), mean, x=algorithm, y=mean, gg)) +
+geom_bar(stat="identity", position = "dodge") + 
+  scale_color_brewer(palette = "Set2") +
+  labs(title ="Average size of Top20-Subspaces per algorithm", y = "Mean size") 
 ``` 

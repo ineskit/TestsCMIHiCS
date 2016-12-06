@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1481043876947.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "AD678A48",
+    "lastKnownWriteTime" : 7308604914264011873,
+    "last_content_update" : 1481043876947,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "2j5r6u5o1x",
+        "caption" : "breast_diag",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=breast_diag&cache_key=2j5r6u5o1x",
+        "displayedObservations" : 393,
+        "environment" : "",
+        "object" : "breast_diag",
+        "totalObservations" : 393,
+        "variables" : 31
+    },
+    "relative_order" : 12,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

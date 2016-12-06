@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1481042226046.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E2BA13E6",
+    "lastKnownWriteTime" : 7308604914264011873,
+    "last_content_update" : 1481042226046,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "etiyp9dspt",
+        "caption" : "algdsDistinct",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=algdsDistinct&cache_key=etiyp9dspt",
+        "displayedObservations" : 21,
+        "environment" : "",
+        "object" : "algdsDistinct",
+        "totalObservations" : 21,
+        "variables" : 2
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1481043570446.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "651D2F72",
+    "lastKnownWriteTime" : 7308604914264011873,
+    "last_content_update" : 1481043570446,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "bibfp2zbsd",
+        "caption" : "diabetes",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=diabetes&cache_key=bibfp2zbsd",
+        "displayedObservations" : "768",
+        "environment" : "",
+        "object" : "diabetes",
+        "totalObservations" : "768",
+        "variables" : "9"
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
