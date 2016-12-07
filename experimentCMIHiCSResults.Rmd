@@ -34,6 +34,7 @@ For further documentation, see:
 CMI and HiCS algorithms were implemented in inline c++ in R, using the Rcpp-package.
 Experiments ran on Intel core i7-4600U CPU and 8 GB RAM.
 
+For implementation details see [R-Subcon](https://github.com/holtri/Rsubcon).
 <br>
 <br>
 
@@ -79,9 +80,11 @@ load("results/experimentResult.RData")
 The following results, unless otherwise noted, were observed after having run the algorithms with the parameters: <br>
 * maxMinPts = 100   <br>
 * numCores = 1      <br>
-* topkSearch = 500  <br>
-* topkOutput = 100  <br>
+* topkSearch = 50   <br>
+* topkOutput = 20   <br>
 
+<br>
+<br>
 
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -141,33 +144,7 @@ combinedResult <- rbind(tmp, combinedResult)
 ```
 
 #### AUC on real world data 
-#### Algorithms: HiCS and CMI
-```{r, echo=FALSE}
-Dataset = c("Thyroid","Thyroid","Glass","Glass","Ion", "Ion", "Pendigits","Pendigits","Segment","Segment", "Lympho","Lympho") 
-Algorithm = c("CMI", "HiCS","CMI", "HiCS","CMI", "HiCS","CMI", "HiCS", "CMI", "HiCS", "CMI", "HiCS")
 
-AUC <- c(0.953, 0.953, 0.798, 0.800, 0.763, 0.731, 0.956, 0.904, 0.905, 0.825, 0.930, 0.869)
-dfAuc = data.frame(Dataset, Algorithm, AUC) 
-
-
-library(ggplot2)
-ggplot(dfAuc, aes(factor(Dataset), dfAuc$AUC, fill=Algorithm, x=Dataset, y=AUC, gg)) +
-  geom_bar(stat="identity", position = "dodge") + 
-  scale_fill_brewer(palette = "Set2")
-
-``` 
-<br>
-<br>
-
-#### Algorithms: HiCS, CMI and GMD
-
-The following results are based on the same datasets that are above described.
-Additionally experiments run with GMD-algorithm. (see: [GMD](https://github.com/holtri/Rsubcon))
-The parameter changed: <br>
-* maxMinPts = 100   <br>
-* numCores=1        <br>
-* topkSearch = 50   <br>
-* topkOutput = 20   <br>
 
 ```{r eval=T, echo=FALSE, warning=FALSE}
 # <<plotTest>>
@@ -194,18 +171,30 @@ select(dataset, algorithm, AUC_sum) %>%
 
 <br>
 <br>
+
 #### Runtime
+
+The duration of subspace search algorithm and LOF calculation were the following:
+
 ```{r, echo=FALSE, warning=FALSE}
-Runtime <- c(134.25, 120.01, 29.45, 26.43, 146.22, 36.86, 4547.24, 385.69, 902.45, 122.51, 26.6, 18.76)
-dfRun = data.frame(Dataset, Algorithm, Runtime) 
-barplot(dfRun$Runtime, 
-        names.arg = Dataset,
-        main = "Runtime in sec.",
-        xlab="Dataset", 
-        ylab="Sec.",
-        ylim = c(0, 5000),
-        col=c("darkblue","deepskyblue"),
-        legend = c("CMI","HiCS"))
+
+# RUNTIME
+
+  combinedResult %>%   
+  select(dataset, algorithm, durationLOF, duationSS) %>%
+  
+  group_by(dataset, algorithm) %>%
+  slice(which.max(sum(duationSS, durationLOF))) %>%
+  group_by(dataset, algorithm) %>%
+  
+  mutate(runtime = sum(duationSS, durationLOF)) %>%
+  
+  ggplot(aes(x = factor(dataset), y = runtime, fill = algorithm)) +
+  geom_bar(position = position_dodge(), stat="identity", width = 0.7) +
+  xlab(label = "Dataset") +
+  ylab(label = "Runtime in sec.") +
+  scale_fill_brewer(palette = "Set2") 
+  
 ``` 
 
 #### Subspaces
@@ -220,7 +209,9 @@ ssv <- rbind(annSSU, diabSSU, glassSSU, ionSSU, lympSSU, penSSU, segmSSU)
 
  # gather first 
 long_DF <- ssv %>% gather(name, subsp, subsp1V:subsp20V)
-# sortedSS <- long_DF[order(long_DF$dataset),]
+
+
+long_DF <- long_DF[order(long_DF$algorithm),]
 
 # subspace length
 lengthSS <- c(length(long_DF$subsp[[1]]))
@@ -231,8 +222,6 @@ for (i in 2:length(long_DF$subsp)){
 subspaces <- mutate(long_DF, length = lengthSS) 
 
 # mean per algorithm per dataset
-# datasDistinct <- subspaces %>% select(dataset) %>% distinct
-# algorDistinct <- subspaces %>% select(algorithm) %>% distinct
 algdsDistinct <- subspaces %>% select(algorithm, dataset) %>% distinct
 
 dfMean <- data.frame()
@@ -256,6 +245,7 @@ ggplot(dfMean, aes(factor(dataset), mean, fill=algorithm, x=dataset, y=mean, gg)
 <br>
 <br>
 With CMI subspaces with higher dimensions were found. It is even more obvious when you look at the Top5 Subspaces.
+
 ```{r eval=T, echo=FALSE, warning=FALSE}
 # Mean on top5-subspaces:
 top5Length <- filter(subspaces, subspaces$name == "subsp1V" | subspaces$name == "subsp2V" | subspaces$name == "subsp3V"
@@ -306,7 +296,7 @@ The global mean of subspace size is
   print(globalMean <- mean(subspaces$length))
 ```
 
-Those are the means per algorithm:
+Those are the mean sizes of subspaces per algorithm:
 
 ```{r eval=T, echo=FALSE, warning=FALSE}
 #   mean per algorithm
@@ -333,9 +323,4 @@ geom_bar(stat="identity", position = "dodge") +
 ``` 
 
 
-AUC autom
-
-```{r eval=T, echo=FALSE, warning=FALSE}
-
-```
 
