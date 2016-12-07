@@ -12,14 +12,14 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "i5lugqmmko",
+        "cacheKey" : "ojzz6jsfli",
         "caption" : "ssv",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=ssv&cache_key=i5lugqmmko",
-        "displayedObservations" : 21,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=ssv&cache_key=ojzz6jsfli",
+        "displayedObservations" : "21",
         "environment" : "",
         "object" : "ssv",
-        "totalObservations" : 21,
-        "variables" : 22
+        "totalObservations" : "21",
+        "variables" : "22"
     },
     "relative_order" : 5,
     "source_on_save" : false,

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 read_chunk("generatePlots.R")
 ```
 
-##  Comparing CMI and HiCS Subspace Search using real-world datasets
+##  Comparing CMI, HiCS and GMD Subspace Search using real-world datasets
 
 ### Overview
 This document contains the results of a comparison of the algorithms CMI, HiCS & GMD.
@@ -65,12 +65,12 @@ Datasets can be downloaded here:
   finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
 ```
 Automatically a file *experimentResult.RData* will be written to the *results* folder.
+If you want to reuse the same structure of the KNITR-File for other experiments, please make sure that you've got 1 RMD-Resultfile per dataset.
 
 Results can be loaded by
 ```{r eval=FALSE}
 load("results/experimentResult.RData")
 ```
-This Rmd-File assumes one RData-File per dataset to knit the results properly. 
 <br>
 <br>
 
@@ -78,14 +78,70 @@ This Rmd-File assumes one RData-File per dataset to knit the results properly.
 ### Results
 The following results, unless otherwise noted, were observed after having run the algorithms with the parameters: <br>
 * maxMinPts = 100   <br>
-* numCores=1        <br>
+* numCores = 1      <br>
 * topkSearch = 500  <br>
-* topkOutput = 100   <br>
+* topkOutput = 100  <br>
 
+
+
+```{r, echo=FALSE, warning=FALSE}
+# load data 
+
+colSSVec <- c(1,2,36:55) # top 20 subspaces as vectors
+colTop5SS <- c(1,2,16:20)   # top 5 subspaces as characters
+
+load("results/Param_100_050_020_SSVec/experimentResult_ann_161129.RData")
+annSS <-combinedResult[,colSSVec, with=FALSE]
+annSSU <-annSS[!duplicated(annSS$algorithm)]
+ann5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+tmp <- combinedResult 
+
+# load("results/Param_100_050_020_SSVec/experimentResult_ann_161129.RData")
+# breastSS <-combinedResult[,colSSVec, with=FALSE]
+# breastU <-breastSS[!duplicated(breastSS$algorithm)]
+# breast5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+# tmp <- rbind(tmp, combinedResult)
+
+load("results/Param_100_050_020_SSVec/experimentResult_diabetes_161206.RData")
+diabSS <-combinedResult[,colSSVec, with=FALSE]
+diabSSU <-diabSS[!duplicated(diabSS$algorithm)]
+diab5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+tmp <- rbind(tmp, combinedResult)
+
+load("results/Param_100_050_020_SSVec/experimentResult_glass_161129.RData")
+glassSS <-combinedResult[,colSSVec, with=FALSE]
+glassSSU <-glassSS[!duplicated(glassSS$algorithm)]
+glass5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+tmp <- rbind(tmp, combinedResult)
+
+load("results/Param_100_050_020_SSVec/experimentResult_ion_161129.RData")
+ionSS <-combinedResult[,colSSVec, with=FALSE]
+ionSSU <-ionSS[!duplicated(ionSS$algorithm)]
+ion5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+tmp <- rbind(tmp, combinedResult)
+
+load("results/Param_100_050_020_SSVec/experimentResult_lymph_161206.RData")
+lympSS <-combinedResult[,colSSVec, with=FALSE]
+lympSSU <-lympSS[!duplicated(lympSS$algorithm)]
+lymp5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+tmp <- rbind(tmp, combinedResult)
+
+load("results/Param_100_050_020_SSVec/experimentResult_pen_161206.RData")
+penSS <-combinedResult[,colSSVec, with=FALSE]
+penSSU <-penSS[!duplicated(penSS$algorithm)]
+pen5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+tmp <- rbind(tmp, combinedResult)
+
+load("results/Param_100_050_020_SSVec/experimentResult_segmentn_161206.RData")
+segmSS <-combinedResult[,colSSVec, with=FALSE]
+segmSSU <-segmSS[!duplicated(segmSS$algorithm)]
+segm5SS <-combinedResult[!duplicated(combinedResult[,colTop5SS, with=FALSE]),colTop5SS, with=FALSE]
+combinedResult <- rbind(tmp, combinedResult)
+
+```
 
 #### AUC on real world data 
 #### Algorithms: HiCS and CMI
-<!-- todo: AUC automatisiert auslesen aus den Dateien -->
 ```{r, echo=FALSE}
 Dataset = c("Thyroid","Thyroid","Glass","Glass","Ion", "Ion", "Pendigits","Pendigits","Segment","Segment", "Lympho","Lympho") 
 Algorithm = c("CMI", "HiCS","CMI", "HiCS","CMI", "HiCS","CMI", "HiCS", "CMI", "HiCS", "CMI", "HiCS")
@@ -102,6 +158,7 @@ ggplot(dfAuc, aes(factor(Dataset), dfAuc$AUC, fill=Algorithm, x=Dataset, y=AUC, 
 ``` 
 <br>
 <br>
+
 #### Algorithms: HiCS, CMI and GMD
 
 The following results are based on the same datasets that are above described.
@@ -112,8 +169,27 @@ The parameter changed: <br>
 * topkSearch = 50   <br>
 * topkOutput = 20   <br>
 
-```{r eval=T, echo=FALSE}
-<<plotTest>>
+```{r eval=T, echo=FALSE, warning=FALSE}
+# <<plotTest>>
+
+# AUC 
+
+combinedResult %>%   
+select(dataset, algorithm, AUC_sum) %>%
+  
+  group_by(dataset, algorithm) %>%
+  slice(which.max(AUC_sum)) %>%
+ group_by(dataset, algorithm) %>%
+  summarize(mean.AUC = mean(AUC_sum), sd.AUC = sd(AUC_sum)) %>%
+  select(dataset, algorithm, mean.AUC, sd.AUC) %>%
+  
+  ggplot(aes(x = factor(dataset), y = mean.AUC, fill = algorithm)) +
+  geom_bar(position = position_dodge(), stat="identity", width = 0.7) +
+  geom_errorbar(aes(ymin=mean.AUC - sd.AUC, ymax=mean.AUC + sd.AUC), width=.2, position = position_dodge(.7)) +
+  xlab(label = "Dataset") +
+  ylab(label = "AUC") +
+  scale_fill_grey(start = 0.1, end = 0.7)
+
 ```
 
 <br>
@@ -133,80 +209,11 @@ barplot(dfRun$Runtime,
 ``` 
 
 #### Subspaces
-```{r, echo=FALSE, warning=FALSE}
 
-SubspaceSizes = c(5, 3.2, 6.2, 2.6, 7.2, 2.4, 6.4, 3.2, 8.2, 2.4, 6.6, 2.2) 
-df = data.frame(Dataset, Algorithm, SubspaceSizes) 
-
-ggplot(df, aes(factor(Dataset), SubspaceSizes, fill=Algorithm, x=Dataset, y=SubspaceSizes, gg)) +
-  geom_bar(stat="identity", position = "dodge") + 
-  scale_fill_brewer(palette = "Set2") +
-  ggtitle("Average size of Top5-Subspaces")
-
-```
-<br>
-<br>
-With CMI Subspaces more dimensions were found. 
-Some examples of found subspaces:
-```{r, echo=FALSE, warning=FALSE}
-
-colum <- c(1,2,16:20)
-colNam <- c("Algorithm","Dataset","Subspace 1","Subspace 2","Subspace 3","Subspace 4","Subspace 5")
-
-load("results/Param_100_050_020_SSVec/experimentResult_glass_161129.RData")
-combRes <-combinedResult[,colum, with=FALSE]
-combResUG <-combRes[!duplicated(combRes)]
-kable(combResUG, caption = "Top-5-Subspaces - Glass-Dataset", col.names = colNam)
-
-load("results/Param_100_050_020_SSVec/experimentResult_ion_161129.RData")
-combRes <-combinedResult[,colum, with=FALSE]
-combResUI <-combRes[!duplicated(combRes)]
-kable(combResUI, caption = "Top-5-Subspaces - Ion-Dataset", col.names = colNam)
-
-load("results/Param_100_500_100/experimentResult_pen_161019.RData")
-combRes <-combinedResult[,colum, with=FALSE]
-combResUP <-combRes[!duplicated(combRes)]
-kable(combResUP, caption = "Top-5-Subspaces - Pendigits-Dataset", col.names = colNam)
-
-```
-
-
+One aspect we considered was the size of the subspaces which were found by the algorithms.
 
 ```{r eval=T, echo=FALSE, warning=FALSE}
-
-# load data for subspace evaluation
-colSSVec <- c(1,2,36:55)
-load("results/Param_100_050_020_SSVec/experimentResult_ann_161129.RData")
-annSS <-combinedResult[,colSSVec, with=FALSE]
-annSSU <-annSS[!duplicated(annSS$algorithm)]
-
-# load("results/Param_100_050_020_SSVec/experimentResult_ann_161129.RData")
-# breastSS <-combinedResult[,colSSVec, with=FALSE]
-# breastU <-breastSS[!duplicated(breastSS$algorithm)]
-
-load("results/Param_100_050_020_SSVec/experimentResult_diabetes_161206.RData")
-diabSS <-combinedResult[,colSSVec, with=FALSE]
-diabSSU <-diabSS[!duplicated(diabSS$algorithm)]
-
-load("results/Param_100_050_020_SSVec/experimentResult_glass_161129.RData")
-glassSS <-combinedResult[,colSSVec, with=FALSE]
-glassSSU <-glassSS[!duplicated(glassSS$algorithm)]
-
-load("results/Param_100_050_020_SSVec/experimentResult_ion_161129.RData")
-ionSS <-combinedResult[,colSSVec, with=FALSE]
-ionSSU <-ionSS[!duplicated(ionSS$algorithm)]
-
-load("results/Param_100_050_020_SSVec/experimentResult_lymph_161206.RData")
-lympSS <-combinedResult[,colSSVec, with=FALSE]
-lympSSU <-lympSS[!duplicated(lympSS$algorithm)]
-
-load("results/Param_100_050_020_SSVec/experimentResult_pen_161206.RData")
-penSS <-combinedResult[,colSSVec, with=FALSE]
-penSSU <-penSS[!duplicated(penSS$algorithm)]
-
-load("results/Param_100_050_020_SSVec/experimentResult_segmentn_161206.RData")
-segmSS <-combinedResult[,colSSVec, with=FALSE]
-segmSSU <-segmSS[!duplicated(segmSS$algorithm)]
+# Mean on top20-subspaces:
 
 
 ssv <- rbind(annSSU, diabSSU, glassSSU, ionSSU, lympSSU, penSSU, segmSSU)
@@ -217,7 +224,7 @@ long_DF <- ssv %>% gather(name, subsp, subsp1V:subsp20V)
 
 # subspace length
 lengthSS <- c(length(long_DF$subsp[[1]]))
-#   .. add length as new column
+#   .. add length as new column "length"
 for (i in 2:length(long_DF$subsp)){
     lengthSS <- c(lengthSS, length(long_DF$subsp[[i]]))
 }
@@ -246,16 +253,62 @@ ggplot(dfMean, aes(factor(dataset), mean, fill=algorithm, x=dataset, y=mean, gg)
   scale_fill_brewer(palette = "Set2") +
   labs(title ="Average size of Top20-Subspaces", y = "Mean size") 
 ``` 
+<br>
+<br>
+With CMI subspaces with higher dimensions were found. It is even more obvious when you look at the Top5 Subspaces.
+```{r eval=T, echo=FALSE, warning=FALSE}
+# Mean on top5-subspaces:
+top5Length <- filter(subspaces, subspaces$name == "subsp1V" | subspaces$name == "subsp2V" | subspaces$name == "subsp3V"
+                | subspaces$name == "subsp4V" | subspaces$name == "subsp5V") 
+
+dfMean5 <- data.frame()
+for (i in 1:nrow(algdsDistinct)){
+ 
+  tmpdf5 <- filter(top5Length, top5Length$algorithm == algdsDistinct$algorithm[i] & top5Length$dataset == algdsDistinct$dataset[i])             %>% select(length)
+  
+  tmpMean5 <- mean(tmpdf5$length)
+  # print(tmpMean)
+  v <- data.frame(dataset = algdsDistinct$dataset[i], algorithm = algdsDistinct$algorithm[i], mean = tmpMean5)
+  dfMean5  <- rbind(dfMean5, v)
+}
+
+ggplot(dfMean5, aes(factor(dataset), mean, fill=algorithm, x=dataset, y=mean, gg)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set2") +
+  ggtitle("Average size of Top5-Subspaces")
 
 
-Obviously the size of the subspaces is much higher for CMI than for HiCs and for GMD. 
+```
+
+
+Some examples of found subspaces:
+```{r, echo=FALSE, warning=FALSE}
+# Examples of top5-subspaces:
+
+colNam <- c("Algorithm","Dataset","Subspace 1","Subspace 2","Subspace 3","Subspace 4","Subspace 5")
+
+kable(glass5SS, caption = "Top-5-Subspaces - Glass-Dataset", col.names = colNam)
+kable(ion5SS, caption = "Top-5-Subspaces - Ion-Dataset", col.names = colNam)
+kable(pen5SS, caption = "Top-5-Subspaces - Pendigits-Dataset", col.names = colNam)
+
+```
+
+
+The size of the subspaces is much higher for CMI than for HiCs and for GMD. 
 A reason is maybe the higher score a subspace gets by adding further dimensions. 
 
-```{r eval=T, echo=FALSE, warning=FALSE}
-# MEAN
-#   global mean
-globalMean <- mean(subspaces$length)
+<br>
+<br>
+The global mean of subspace size is 
 
+```{r eval=T, echo=FALSE, warning=FALSE}
+#   global mean
+  print(globalMean <- mean(subspaces$length))
+```
+
+Those are the means per algorithm:
+
+```{r eval=T, echo=FALSE, warning=FALSE}
 #   mean per algorithm
 meanAlg <- data.frame()
 SSCMI <- filter(subspaces, subspaces$algorithm == "CMI")
@@ -278,3 +331,11 @@ geom_bar(stat="identity", position = "dodge") +
   scale_color_brewer(palette = "Set2") +
   labs(title ="Average size of Top20-Subspaces per algorithm", y = "Mean size") 
 ``` 
+
+
+AUC autom
+
+```{r eval=T, echo=FALSE, warning=FALSE}
+
+```
+

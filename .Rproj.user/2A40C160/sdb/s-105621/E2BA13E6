@@ -12,14 +12,14 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "etiyp9dspt",
+        "cacheKey" : "k9yxyf5gx8",
         "caption" : "algdsDistinct",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=algdsDistinct&cache_key=etiyp9dspt",
-        "displayedObservations" : 21,
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=algdsDistinct&cache_key=k9yxyf5gx8",
+        "displayedObservations" : "21",
         "environment" : "",
         "object" : "algdsDistinct",
-        "totalObservations" : 21,
-        "variables" : 2
+        "totalObservations" : "21",
+        "variables" : "2"
     },
     "relative_order" : 8,
     "source_on_save" : false,
