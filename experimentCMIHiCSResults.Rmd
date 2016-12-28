@@ -66,7 +66,7 @@ Datasets can be downloaded here:
   finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
 ```
 Automatically a file *experimentResult.RData* will be written to the *results* folder.
-If you want to reuse the same structure of the KNITR-File for other experiments, please make sure that you've got 1 RMD-Resultfile per dataset.
+If you want to reuse the same structure of the KNITR-File for other experiments, please make sure that you've got 1 RData-Resultfile per dataset.
 
 Results can be loaded by
 ```{r eval=FALSE}

@@ -60,10 +60,6 @@ applyLOF <- function(outputSpaces, data, label, maxMinPts, input, algorithm){
     finalScoreMax <- Reduce(maxCombination, lofactors)
     finalScoreSum <- Reduce(sumCombination, lapply(lofactors, identity))
 
-    # evaluation
-    # auc_sum <- combinedScoreAUC(combinationFun = sumCombination, scores = lofactors, label = label)
-    # auc_max <- combinedScoreAUC(combinationFun = maxCombination, scores = lofactors, label = label)
-
     Rprecision_adj_sum <- precisionAtN(label, finalScoreSum, n = sum(label), adjusted = T)
     Rprecision_adj_max <- precisionAtN(label, finalScoreMax, n = sum(label), adjusted = T)
 
@@ -154,8 +150,8 @@ runExperiments <- function(inputPath,
   # setup
   Log("starting experiments")
   inputs <- list.files(path=inputPath, recursive = T)
-    algorithms <- c("HiCS", "CMI", "GMD")
-    #algorithms <- c("GMD")
+    # algorithms <- c("HiCS", "CMI", "GMD")
+    algorithms <- c("GMD")
 
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
 
@@ -276,5 +272,4 @@ runExperiments <- function(inputPath,
 }
 
   # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 500, topkOutput = 100)
-  # finalResult <- runExperiments(inputPath = "datasets", maxMinPts = 100, numCores=1, topkSearch = 50, topkOutput = 20)
-
+  
