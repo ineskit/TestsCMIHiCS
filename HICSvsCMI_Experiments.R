@@ -151,7 +151,7 @@ runExperiments <- function(inputPath,
   Log("starting experiments")
   inputs <- list.files(path=inputPath, recursive = T)
     # algorithms <- c("HiCS", "CMI", "GMD")
-    algorithms <- c("GMD")
+    algorithms <- c("HiCS")
 
   experiments <- expand.grid("algorithm" = algorithms, "input" = inputs, stringsAsFactors = FALSE)
 
@@ -187,72 +187,26 @@ runExperiments <- function(inputPath,
                               result <- applyLOF(outputSpaces = rL$outputSpaces, data=dt, label=label, maxMinPts = maxMinPts, input = experiment$input, algorithm = experiment$algorithm)
                               timer_end_LOF <- proc.time()
 
-                              # for (i in 1:5) {
-                              #   subspX <- sapply(outputSpaces[i], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              #   header<-paste0("Top_",i)
-                              #   top5SS$header <- subspX
-                              #   #top5SS <- data.table(header = subspX)
-                              # }
-                              subsp1 <- sapply(rL$outputSpaces[1], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp2 <- sapply(rL$outputSpaces[2], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp3 <- sapply(rL$outputSpaces[3], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp4 <- sapply(rL$outputSpaces[4], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp5 <- sapply(rL$outputSpaces[5], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp6 <- sapply(rL$outputSpaces[6], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp7 <- sapply(rL$outputSpaces[7], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp8 <- sapply(rL$outputSpaces[8], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp9 <- sapply(rL$outputSpaces[9], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp10 <- sapply(rL$outputSpaces[10], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp11 <- sapply(rL$outputSpaces[11], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp12 <- sapply(rL$outputSpaces[12], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp13 <- sapply(rL$outputSpaces[13], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp14 <- sapply(rL$outputSpaces[14], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp15 <- sapply(rL$outputSpaces[15], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp16 <- sapply(rL$outputSpaces[16], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp17 <- sapply(rL$outputSpaces[17], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp18 <- sapply(rL$outputSpaces[18], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp19 <- sapply(rL$outputSpaces[19], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              subsp20 <- sapply(rL$outputSpaces[20], function(x) paste0("[",paste(x, collapse = ","),"]"))
-                              top20SS <- data.table(subsp1, subsp2, subsp3, subsp4, subsp5, subsp6, subsp7, subsp8, subsp9, subsp10,
-                                                   subsp11, subsp12, subsp13, subsp14, subsp15, subsp16, subsp17, subsp18, subsp19, subsp20)
-
-                              subsp1V <- rL$outputSpaces[1]
-                              subsp2V <- rL$outputSpaces[2]
-                              subsp3V <- rL$outputSpaces[3]
-                              subsp4V <- rL$outputSpaces[4]
-                              subsp5V <- rL$outputSpaces[5]
-                              subsp6V <- rL$outputSpaces[6]
-                              subsp7V <- rL$outputSpaces[7]
-                              subsp8V <- rL$outputSpaces[8]
-                              subsp9V <- rL$outputSpaces[9]
-                              subsp10V <- rL$outputSpaces[10]
-                              subsp11V <- rL$outputSpaces[11]
-                              subsp12V <- rL$outputSpaces[12]
-                              subsp13V <- rL$outputSpaces[13]
-                              subsp14V <- rL$outputSpaces[14]
-                              subsp15V <- rL$outputSpaces[15]
-                              subsp16V <- rL$outputSpaces[16]
-                              subsp17V <- rL$outputSpaces[17]
-                              subsp18V <- rL$outputSpaces[18]
-                              subsp19V <- rL$outputSpaces[19]
-                              subsp20V <- rL$outputSpaces[20]
-
-                              top20SSV <- data.table(subsp1V, subsp2V, subsp3V, subsp4V, subsp5V, subsp6V, subsp7V, subsp8V, subsp9V, subsp10V,
-                                                    subsp11V, subsp12V, subsp13V, subsp14V, subsp15V, subsp16V, subsp17V, subsp18V, subsp19V, subsp20V)
-
+                              topkSSV <- NULL
+                              for (i in 1: topkOutput) {
+                                subspV_tmp <- rL$outputSpaces[i]
+                                topkSSV <- cbind(topkSSV, subspV_tmp)
+                                colnames(topkSSV)[i] <- c(paste0("subsp",i))
+                              }
+                              topkSSV <- data.table(topkSSV)
+                              
 
                               if (experiment$algorithm != "GMD"){
                                 data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, top20SSV, Highestcontrast =rL$contrast[1],
+                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, topkSSV, Highestcontrast =rL$contrast[1],
                                                  contrast2 =rL$contrast[2], contrast3 =rL$contrast[3], contrast4 =rL$contrast[4], contrast5 =rL$contrast[5]))
                               }
                               else{
                                 data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, top20SS, top20SSV, Highestcontrast ="0",
+                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, topkSSV, Highestcontrast ="0",
                                                  contrast2 ="0", contrast3 ="0", contrast4 ="0", contrast5 ="0"))
                               }
-                              # top 5 subspaces:
-                              #top5SS<-data.table(cbind(subspaces = outputSpaces[1:5]), contrast = contrastCMI)
+                              
                             }
 
   combinedResult <- data.table(Reduce(rbind, parallelResult))
@@ -262,9 +216,7 @@ runExperiments <- function(inputPath,
 
   save(combinedResult, file=paste0(outputFolder,"/",outputFile))
 
-  #outputFileEnh <- paste0(outputFile, "_enh")
-  #save(top5SS, file=paste0(outputFolder,"/",outputFileEnh))
-  # cleanup
+ 
   if(numCores > 1){
     stopCluster(cluster)
   }

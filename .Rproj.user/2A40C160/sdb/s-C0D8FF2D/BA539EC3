@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "#include <Rcpp.h>\nusing namespace Rcpp;\n\n\n// [[Rcpp::export]]\nstd::vector<double> NumericMatrixToVector(NumericMatrix x) {\n  \n  int size = x.cols() * x.rows();\n  Rcout << size <<\",\" <<x.cols()<<\",\"<<x.rows()<<std::endl;\n  std::vector<double> output(size);\n\n  for(int i=0; i<x.rows(); i++){\n    for(int j=0; j<x.cols(); j++){\n       output[(i*x.cols())+j] = x(i,j);\n    }\n  }\n  \n  // Rcout<<\"(0,0):\"<< x(0,0)<<std::endl;\n  // Rcout<<\"(0,1):\"<< x(0,1)<<std::endl;\n  // Rcout<<\"(0,2):\"<< x(0,2)<<std::endl;\n  // \n  // Rcout<<\"(1,0):\"<< x(1,0)<<std::endl;\n  // Rcout<<\"(1,1):\"<< x(1,1)<<std::endl;\n  // Rcout<<\"(1,2):\"<< x(1,2)<<std::endl;\n  \n  return output;\n}\n\n\n\n/*** R\nm<-matrix(100:109, nrow=5, ncol=2)\nm2<-matrix(12:20, nrow = 3, ncol = 3)\nvec<-NumericMatrixToVector(m)\nprint(vec)\n*/\n",
+    "created" : 1483004237583.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "571600905",
+    "id" : "BA539EC3",
+    "lastKnownWriteTime" : 1483007699,
+    "last_content_update" : 1483007699,
+    "path" : "D:/Uni/SS16/Hiwi/github/Ausprobieren/directAccess.cpp",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "cpp"
+}
