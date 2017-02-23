@@ -188,18 +188,23 @@ runExperiments <- function(inputPath,
                               timer_end_LOF <- proc.time()
 
                               topkSSV <- NULL
+                              topkcontrasts <- NULL
                               for (i in 1: topkOutput) {
                                 subspV_tmp <- rL$outputSpaces[i]
                                 topkSSV <- cbind(topkSSV, subspV_tmp)
                                 colnames(topkSSV)[i] <- c(paste0("subsp",i))
+                                
+                                contrV_tmp <- rL$contrast[i]
+                                topkcontrasts <- cbind(topkcontrasts, contrV_tmp)
+                                colnames(topkcontrasts)[i] <- c(paste0("contr",i))
                               }
                               topkSSV <- data.table(topkSSV)
+                              topkcontrasts <- data.table(topkcontrasts)
                               
 
                               if (experiment$algorithm != "GMD"){
                                 data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
-                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, topkSSV, Highestcontrast =rL$contrast[1],
-                                                 contrast2 =rL$contrast[2], contrast3 =rL$contrast[3], contrast4 =rL$contrast[4], contrast5 =rL$contrast[5]))
+                                                 durationLOF = (timer_end_LOF - timer_start_LOF)["elapsed"], result, topkSSV, topkcontrasts))
                               }
                               else{
                                 data.table(cbind(algorithm = experiment$algorithm, dataset = experiment$input, duationSS = (timer_end -timer_start)["elapsed"],
